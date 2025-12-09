@@ -10,8 +10,9 @@ const register= async(req,res) =>{
 
   try{
     const data=req.body;
-    
-    
+    console.log('Register data received:', data);
+
+
     // Validating user information........
     validate(data);
 

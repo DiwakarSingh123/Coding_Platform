@@ -13,7 +13,7 @@ var cors = require('cors');
 
 // Learn about cors error essey solve karne key liye core use karte hai jo per mision deta hai ki ess ess port number wale url ko access dena hai
 app.use(cors({
-  origin: "http://localhost:5173", // jahan se frontend run kar raha hai (Vite/React ka port)
+  origin: ["http://localhost:5173", "http://localhost:5174"], // jahan se frontend run kar raha hai (Vite/React ka port)
   credentials: true // 👈 cookies allow karna hoga
 }));
 

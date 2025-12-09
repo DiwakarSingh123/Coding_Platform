@@ -176,6 +176,8 @@ const getProblemById=async (req,res)=>{
 
 const getAllProblem=async (req,res)=>{
   try{
+    console.log("Hellow");
+    
     const allProblem=await Problem.find({}).select('_id title difficulty tags createdAt');
 
     if(!allProblem){

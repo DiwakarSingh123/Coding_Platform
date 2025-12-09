@@ -9,6 +9,7 @@ import { Link, useNavigate,NavLink } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../authSlicer";
 
+
 const Singup = () => {
   //redux use hre..........
   const dispatch=useDispatch();

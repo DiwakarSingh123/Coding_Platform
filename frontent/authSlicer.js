@@ -7,10 +7,10 @@ export const registerUser = createAsyncThunk(
     async (userData, { rejectWithValue }) => {
         try {
             const response = await axiosClient.post('/api/register', userData)
-            
+
             return response.data.user;
         } catch (err) {
-            return rejectWithValue(err);
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
         }
     }
 );
@@ -24,7 +24,7 @@ export const loginUser = createAsyncThunk(
             const response = await axiosClient.post('/api/login', creadential)
             return response.data.user;
         } catch (err) {
-            return rejectWithValue(err);
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
         }
     }
 );
@@ -38,7 +38,10 @@ export const checkAuth = createAsyncThunk(
             console.log(response.data)
             return response.data.user;
         } catch (err) {
-            return rejectWithValue(err);
+            if (err.response?.status === 401) {
+                return null; // Not authenticated, no error
+            }
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
         }
     }
 );
@@ -51,7 +54,7 @@ export const userLogout = createAsyncThunk(
             const response = await axiosClient.post('/api/logout')
             return response.data.user;
         } catch (err) {
-            return rejectWithValue(err);
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
         }
     }
 );
@@ -77,7 +80,7 @@ const authSlicer = createSlice({
                 state.isAuthenticated=!!action.payload;
                 state.user=action.payload
             })
-            .addCase(registerUser.rejected,(state)=>{
+            .addCase(registerUser.rejected,(state,action)=>{
                 state.loading=false;
                 state.error = action.payload?.message || 'Something went wrong';
                 state.isAuthenticated=false;
@@ -93,7 +96,7 @@ const authSlicer = createSlice({
                 state.isAuthenticated=!!action.payload;
                 state.user=action.payload
             })
-            .addCase(loginUser.rejected,(state)=>{
+            .addCase(loginUser.rejected,(state,action)=>{
                 state.loading=false;
                 state.error = action.payload?.message || 'Something went wrong';
                 state.isAuthenticated=false;
