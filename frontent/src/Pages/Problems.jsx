@@ -5,7 +5,7 @@ import { BiBorderAll } from "react-icons/bi";
 import { Check, Circle, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import axiosClient from '../utils/axiosClient';
 import { NavLink, Link } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Navbar from '../Components/Navbar';
 const Problems = () => {
     const [refresh, setRefresh] = useState(true);
@@ -35,7 +35,8 @@ const Problems = () => {
     // ]);
 
     const [problems, setProblems] = useState([]);
-    const dispatch = useDispatch()
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
     const { user } = useSelector((state) => state.auth);
 
     // Count topics
@@ -43,42 +44,38 @@ const Problems = () => {
 
         // Now here i fetch the all problems and solved problems
         const fetchAllProblem = async () => {
+            setLoading(true);
+            setFetchError(null);
             try {
                 const { data } = await axiosClient.get('/problem/allProblem');
-                // console.log(data);
+                // fetch solved problems to mark status correctly
+                let solvedIds = [];
+                try {
+                    const { data: solvedData } = await axiosClient.get('/problem/solved');
+                    solvedIds = solvedData.map(p => p._id);
+                } catch (_) {}
+
                 const hero = data.map((val) => ({
                     ...val,
-                    status: "solved"
+                    status: solvedIds.includes(val._id) ? "solved" : ""
                 }));
-                console.log(data);
                 setProblems(hero);
 
-                // Calculate topic counts after fetching
                 const counts = {};
                 hero.forEach((problem) => {
                     problem.tags.forEach((topic) => {
-                        counts[topic] = counts[topic] ? counts[topic] + 1 : 1;
+                        counts[topic] = (counts[topic] || 0) + 1;
                     });
                 });
                 counts["all-tags"] = hero.length;
                 setTopicCounts(counts);
-
             } catch (error) {
                 console.error('Error fetching problems:', error);
-            }
-        }
-
-        const fetchSolvedProblems = async () => {
-            try {
-                const { data } = await axiosClient.get('/problem/solved');
-                // setSolvedProblems(data);
-            } catch (error) {
-                console.error('Error fetching solved problems:', error);
+                setFetchError('Failed to load problems. Please refresh.');
+            } finally {
+                setLoading(false);
             }
         };
-
-        fetchAllProblem();
-        // fetchSolvedProblems()
     }, [user]);
 
     const toggleTopic = (topic) => {
@@ -289,21 +286,44 @@ const Problems = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {currentProblems.map((problem, ind) => (
-                                            <tr key={problem._id} className="border-b border-slate-800 hover:bg-slate-800/50">
-                                                <td className="p-3">{getStatusIcon(problem.status)}</td>
-                                                <td className="p-3 text-blue-400">{ind + 1}.</td>
-                                                <td className="p-3 font-medium">
-                                                    <NavLink to={`/problem/${problem._id}`} className="hover:text-primary">{problem.title}</NavLink>
-                                                </td>
-                                                <td className={`p-3 ${getDifficultyColor(problem.difficulty)}`}>{problem.difficulty}</td>
-                                                <td className="p-3 flex flex-wrap gap-1">
-                                                    {problem.tags.map(topic => (
-                                                        <span key={`${problem._id}-${topic}`} className="bg-slate-700 text-xs px-2 py-0.5 rounded-full">{topic}</span>
-                                                    ))}
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center">
+                                                    <div className="flex items-center justify-center gap-3 text-blue-400">
+                                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                                                        <span>Loading problems...</span>
+                                                    </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ) : fetchError ? (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-red-400">
+                                                    {fetchError}
+                                                </td>
+                                            </tr>
+                                        ) : currentProblems.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-gray-400">
+                                                    No problems match your filters.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            currentProblems.map((problem, ind) => (
+                                                <tr key={problem._id} className="border-b border-slate-800 hover:bg-slate-800/50">
+                                                    <td className="p-3">{getStatusIcon(problem.status)}</td>
+                                                    <td className="p-3 text-blue-400">{indexOfFirstProblem + ind + 1}.</td>
+                                                    <td className="p-3 font-medium">
+                                                        <NavLink to={`/problem/${problem._id}`} className="hover:text-primary">{problem.title}</NavLink>
+                                                    </td>
+                                                    <td className={`p-3 ${getDifficultyColor(problem.difficulty)}`}>{problem.difficulty}</td>
+                                                    <td className="p-3 flex flex-wrap gap-1">
+                                                        {problem.tags.map(topic => (
+                                                            <span key={`${problem._id}-${topic}`} className="bg-slate-700 text-xs px-2 py-0.5 rounded-full">{topic}</span>
+                                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
