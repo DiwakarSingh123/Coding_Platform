@@ -22,19 +22,21 @@ import 'react-toastify/dist/ReactToastify.css'
 const App = () => {
   // code likhna isAuthentciated
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, authChecked, loading, error, user } = useSelector((state) => state.auth);
 
 
   useEffect(() => {
-    dispatch(checkAuth()); // refresh hone par bhi token verify karega
+    dispatch(checkAuth());
   }, [dispatch]);
 
-  // ✅ Jab tak checkAuth loading me hai tab tak loading screen show karo
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen bg-gray-900 text-yellow-400">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-      <span className="ml-3 text-lg">Loading...</span>
-    </div>
+  // Only block render until the initial auth check is done
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-yellow-400">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+        <span className="ml-3 text-lg">Loading...</span>
+      </div>
+    );
   }
 
   return (
