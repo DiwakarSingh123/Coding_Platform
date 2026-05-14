@@ -2,6 +2,8 @@ const User = require('../modules/user');
 const jwt = require('jsonwebtoken');
 
 // We verify the Firebase ID token using Google's tokeninfo endpoint (no extra package needed)
+const isProd = process.env.NODE_ENV === 'production';
+
 const googleLogin = async (req, res) => {
   try {
     const { idToken } = req.body;
@@ -60,7 +62,12 @@ const googleLogin = async (req, res) => {
       process.env.SECERATE_KEY,
       { expiresIn: 60 * 60 }
     );
-    res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+    const cookieOptions = {
+      maxAge: 60 * 60 * 1000,
+      httpOnly: true,
+      ...(isProd && { sameSite: 'none', secure: true })
+    };
+    res.cookie('token', token, cookieOptions);
 
     res.status(200).json({ user: reply, message: 'Google login successful' });
   } catch (err) {

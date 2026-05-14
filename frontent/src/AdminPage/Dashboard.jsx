@@ -13,14 +13,15 @@ import axiosClient from "../utils/axiosClient";
 
 const Dashboard = () => {
   const [problems, setProblems] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(5); // show only 5 initially
-  const [deficulty,setDeficulty]=useState({})
-  const [users,setUsers]=useState(10);
+  const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [deficulty, setDeficulty] = useState({});
+  const [users, setUsers] = useState([]);
   const stats = [
     { id: 1, label: "Total Problems", value: problems.length, icon: <FiClipboard size={22} /> },
     { id: 2, label: "Submissions", value: "205", icon: <FiCheckCircle size={22} /> },
     { id: 3, label: "Acceptance Rate", value: "23.2%", icon: <FiCode size={22} /> },
-    { id: 4, label: "Active Users", value: users?.data?.length, icon: <FiUsers size={22} /> },
+    { id: 4, label: "Active Users", value: users?.length ?? 0, icon: <FiUsers size={22} /> },
     { id: 5, label: "Easy Problems", value: deficulty?.easy?.length, icon: <CiCircleChevRight size={22} /> },
     { id: 6, label: "Medium Problems", value: deficulty?.medium?.length, icon: <MdErrorOutline size={22} /> },
     { id: 7, label: "Hard Problems", value: deficulty?.hard?.length, icon: <MdCancel size={22} /> },
@@ -36,30 +37,18 @@ const Dashboard = () => {
     const fetchAllProblem = async () => {
       try {
         const { data } = await axiosClient.get("/problem/allProblem");
-        const users = await axiosClient.get("/api/getAllUsers");
-        console.log(users);
-        
-        setUsers(users);
-        // dynamically adding deficulty counts of problem.........
-        const Easy=data.filter((val)=>val.difficulty==="Easy");
-        const Medium=data.filter((val)=>val.difficulty==="Medium");
-        const Hard=data.filter((val)=>val.difficulty==="Hard");
-       
-        
-        const obj={
-            easy:Easy,
-            medium:Medium,
-            hard:Hard
-        }
-        setDeficulty(obj);
-        // Sort ascending by createdAt
-        const sorted = [...data].sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-        );
-
+        const usersRes = await axiosClient.get("/api/getAllUsers");
+        setUsers(usersRes.data);
+        const Easy = data.filter((val) => val.difficulty === "Easy");
+        const Medium = data.filter((val) => val.difficulty === "Medium");
+        const Hard = data.filter((val) => val.difficulty === "Hard");
+        setDeficulty({ easy: Easy, medium: Medium, hard: Hard });
+        const sorted = [...data].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         setProblems(sorted);
       } catch (err) {
-        console.error("Error is " + err);
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -106,33 +95,33 @@ const Dashboard = () => {
       {/* Recent Problems */}
       <section className="bg-[#1E293B] p-6 rounded-lg">
         <h3 className="text-lg font-bold mb-4">Recent Problems</h3>
-        <ul className="divide-y divide-gray-700">
-          {visibleProblems.map((p) => (
-            <li key={p._id} className="flex justify-between items-center py-3">
-              <div>
-                <div className="font-medium hover:text-primary cursor-pointer">{p.title}</div>
-                <div className="text-sm text-gray-400">
-                  Created on {new Date(p.createdAt).toISOString().split("T")[0]}
+        {loading ? (
+          <div className="flex items-center justify-center gap-3 py-8 text-yellow-400">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+            <span>Loading...</span>
+          </div>
+        ) : problems.length === 0 ? (
+          <p className="text-gray-400 text-center py-6">No problems found.</p>
+        ) : (
+          <ul className="divide-y divide-gray-700">
+            {visibleProblems.map((p) => (
+              <li key={p._id} className="flex justify-between items-center py-3">
+                <div>
+                  <div className="font-medium hover:text-primary cursor-pointer">{p.title}</div>
+                  <div className="text-sm text-gray-400">
+                    Created on {new Date(p.createdAt).toISOString().split("T")[0]}
+                  </div>
                 </div>
-              </div>
-              <span
-                className={`px-3 py-1 rounded-full text-xs ${
-                  diffColors[p.difficulty]
-                }`}
-              >
-                {p.difficulty}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Load more button */}
-        {visibleCount < problems.length && (
+                <span className={`px-3 py-1 rounded-full text-xs ${diffColors[p.difficulty]}`}>
+                  {p.difficulty}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {!loading && visibleCount < problems.length && (
           <div className="text-right mt-3">
-            <button
-              className="text-blue-400 hover:underline"
-              onClick={() => setVisibleCount((prev) => prev + 5)}
-            >
+            <button className="text-blue-400 hover:underline" onClick={() => setVisibleCount((prev) => prev + 5)}>
               View More Problems
             </button>
           </div>

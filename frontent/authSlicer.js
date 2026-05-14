@@ -95,7 +95,7 @@ const authSlicer = createSlice({
             })
             .addCase(registerUser.rejected,(state,action)=>{
                 state.loading=false;
-                state.error = action.payload?.message || 'Something went wrong';
+                state.error = typeof action.payload === 'string' ? action.payload : action.payload?.message || 'Something went wrong';
                 state.isAuthenticated=false;
                 state.user=null;
             })
@@ -111,7 +111,7 @@ const authSlicer = createSlice({
             })
             .addCase(loginUser.rejected,(state,action)=>{
                 state.loading=false;
-                state.error = action.payload?.message || 'Something went wrong';
+                state.error = typeof action.payload === 'string' ? action.payload : action.payload?.message || 'Something went wrong';
                 state.isAuthenticated=false;
                 state.user=null;
             })
@@ -127,7 +127,7 @@ const authSlicer = createSlice({
             })
             .addCase(checkAuth.rejected,(state,action)=>{
                 state.loading=false;
-                state.error = action.payload?.message || 'Something went wrong';
+                state.error = null; // don't show error toast for checkAuth failure
                 state.isAuthenticated=false;
                 state.user=null;
             })

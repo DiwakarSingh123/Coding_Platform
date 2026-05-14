@@ -5,18 +5,16 @@ import { NavLink } from "react-router";
 
 const DeleteProblem = () => {
   const [problems, setProblems] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [difficulty, setDifficulty] = useState("All");
-  const [isDeleting, setIsDeleting] = useState(null); // stores the ID of the problem being deleted
+  const [isDeleting, setIsDeleting] = useState(null);
 
-  // delete problem
   const handleDeleteProblem = async (id) => {
     if (window.confirm("Are you sure you want to delete this problem?")) {
       setIsDeleting(id);
       try {
-        const { data } = await axiosClient.delete(`/problem/delete/${id}`);
-        console.log(data);
+        await axiosClient.delete(`/problem/delete/${id}`);
         setProblems(problems.filter((p) => p._id !== id));
       } catch (error) {
         console.error(error);
@@ -27,28 +25,24 @@ const DeleteProblem = () => {
     }
   };
 
-
   useEffect(() => {
     const fetchAllProblem = async () => {
       try {
         const { data } = await axiosClient.get('/problem/allProblem');
-        console.log(data);
         setProblems(data);
-
       } catch (err) {
-        console.error("Error is " + err);
+        console.error("Error fetching problems:", err);
+      } finally {
+        setLoading(false);
       }
-    }
-
+    };
     fetchAllProblem();
-  }, [])
-  // filter logic
-  const filteredProblems = problems.filter((p) => {
-    return (
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (difficulty === "All" || p.difficulty === difficulty)
-    );
-  });
+  }, []);
+
+  const filteredProblems = problems.filter((p) =>
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (difficulty === "All" || p.difficulty === difficulty)
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -88,7 +82,16 @@ const DeleteProblem = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredProblems.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center">
+                  <div className="flex items-center justify-center gap-3 text-yellow-400">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                    <span>Loading Problems...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredProblems.length > 0 ? (
               filteredProblems.map((problem, ind) => (
                 <tr
                   key={problem._id}
@@ -97,7 +100,6 @@ const DeleteProblem = () => {
                   <td className="p-3">{ind + 1}</td>
                   <td className="p-3 hover:text-primary cursor-pointer">
                     {problem.title}
-                    
                   </td>
                   <td className="p-3">
                     <span
@@ -129,12 +131,7 @@ const DeleteProblem = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="p-4 text-center text-gray-400">
-                  <div className="flex mt-6 justify-center h-screen bg-[#1E2939] text-yellow-400">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-                    <span className="ml-3 text-lg">Loading Problems...</span>
-                  </div>
-                </td>
+                <td colSpan="5" className="p-6 text-center text-gray-400">No problems found.</td>
               </tr>
             )}
           </tbody>

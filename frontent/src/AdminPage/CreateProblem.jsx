@@ -36,12 +36,6 @@ const problemSchema = z.object({
             language: z.enum(['C++', 'Java', 'JavaScript']),
             completeCode: z.string().min(1, 'Complete code is required')
         })
-    ).length(3, 'All three languages required'),
-    driverCode: z.array(
-        z.object({
-            language: z.enum(['C++', 'Java', 'JavaScript']),
-            code: z.string().min(1, 'Driver code is required')
-        })
     ).length(3, 'All three languages required')
 });
 
@@ -87,7 +81,8 @@ const CreateProblem = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            const payload = { ...data, problemCreator: user?._id };
+            // strip driverCode before sending — not in DB schema
+            const { driverCode, ...payload } = { ...data, problemCreator: user?._id };
             await axiosClient.post('/problem/create', payload);
             alert('Problem created successfully!');
             navigate('/');

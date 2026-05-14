@@ -10,15 +10,20 @@ const submitRouter = require('./routes/submitProblem');
 const aiRouter = require('./routes/aiChatting');
 const cors = require('cors');
 
+const defaultOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://coding-platform-umber.vercel.app"
+];
+
 const allowedOrigins = process.env.FRONTEND_URL
-    ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ""))
-    : ["http://localhost:5173", "http://localhost:5174"];
+    ? [...defaultOrigins, ...process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ""))]
+    : defaultOrigins;
 
 console.log("Allowed Origins:", allowedOrigins);
 
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin (curl, mobile, server-to-server)
         if (!origin) return callback(null, true);
         const clean = origin.replace(/\/$/, "");
         if (allowedOrigins.includes(clean)) {

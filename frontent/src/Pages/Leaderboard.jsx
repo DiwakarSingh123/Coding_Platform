@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import Navbar from "../Components/Navbar";
 import axiosClient from "../utils/axiosClient";
+import { useSelector } from "react-redux";
 
 const POINTS = {
   Easy: 2,
@@ -15,6 +16,7 @@ export default function Leaderboard() {
   const [solved, setSolved] = useState([]);
   const [search, setSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(10);
+  const { user: currentUser } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,15 +41,13 @@ export default function Leaderboard() {
   const leaderboard = useMemo(() => {
     if (!users.length) return [];
 
-    // 👉 assume FIRST USER = logged-in user
-    const CURRENT_USER_ID = users[0]._id;
-
     return users
       .map((u) => {
         let score = 0;
         let solvedCount = 0;
 
-        if (u._id === CURRENT_USER_ID) {
+        // Only the logged-in user has their solved problems fetched
+        if (currentUser && u._id === currentUser._id) {
           solved.forEach((p) => {
             solvedCount += 1;
             score += POINTS[p.difficulty] || 0;
@@ -59,17 +59,13 @@ export default function Leaderboard() {
           displayName: u.firstName,
           score,
           solvedCount,
-          streak: u._id === CURRENT_USER_ID
-            ? Math.floor(Math.random() * 100)
-            : 0,
+          streak: currentUser && u._id === currentUser._id ? Math.floor(Math.random() * 30) : 0,
         };
       })
-      .filter((u) =>
-        u.displayName.toLowerCase().includes(search.toLowerCase())
-      )
+      .filter((u) => u.displayName.toLowerCase().includes(search.toLowerCase()))
       .sort((a, b) => b.score - a.score)
       .map((u, i) => ({ ...u, rank: i + 1 }));
-  }, [users, solved, search]);
+  }, [users, solved, search, currentUser]);
 
   const top3 = leaderboard.slice(0, 3);
   const visibleUsers = leaderboard.slice(0, visibleCount);

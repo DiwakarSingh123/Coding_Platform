@@ -10,15 +10,13 @@ const difficultyColors = {
 
 const AdminProblem = () => {
   const [problems, setProblems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState("All");
 
   const filteredProblems = problems.filter((problem) => {
-    const matchesSearch = problem.title
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesDifficulty =
-      filterDifficulty === "All" || problem.difficulty === filterDifficulty;
+    const matchesSearch = problem.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDifficulty = filterDifficulty === "All" || problem.difficulty === filterDifficulty;
     return matchesSearch && matchesDifficulty;
   });
 
@@ -26,13 +24,13 @@ const AdminProblem = () => {
     const fetchAllProblem = async () => {
       try {
         const { data } = await axiosClient.get("/problem/allProblem");
-        console.log(data);
         setProblems(data);
       } catch (err) {
-        console.error("Error is " + err);
+        console.error("Error fetching problems:", err);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchAllProblem();
   }, []);
 
@@ -77,39 +75,37 @@ const AdminProblem = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProblems.length > 0 ? (
-                filteredProblems.map((problem,ind) => (
-                  <tr
-                    key={problem._id}
-                    className="hover:bg-gray-700 transition-colors"
-                  >
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center">
+                    <div className="flex items-center justify-center gap-3 text-yellow-400">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                      <span>Loading Problems...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredProblems.length > 0 ? (
+                filteredProblems.map((problem, ind) => (
+                  <tr key={problem._id} className="hover:bg-gray-700 transition-colors">
                     <td className="px-4 py-3">{ind + 1}</td>
-                     <td className="p-3 hover:text-primary cursor-pointer"> {problem.title} </td>
+                    <td className="p-3 hover:text-primary cursor-pointer">{problem.title}</td>
                     <td className="px-4 py-3">
-                      <span
-                      className={`px-3 py-1 rounded-full text-sm ${problem.difficulty === "Easy"
-                        ? "bg-green-600/30 text-green-400"
-                        : problem.difficulty === "Medium"
-                          ? "bg-yellow-600/30 text-yellow-400"
-                          : "bg-red-600/30 text-red-400"
-                        }`}
-                    >
-                      {problem.difficulty}
-                    </span>
+                      <span className={`px-3 py-1 rounded-full text-sm ${
+                        problem.difficulty === "Easy" ? "bg-green-600/30 text-green-400"
+                        : problem.difficulty === "Medium" ? "bg-yellow-600/30 text-yellow-400"
+                        : "bg-red-600/30 text-red-400"
+                      }`}>
+                        {problem.difficulty}
+                      </span>
                     </td>
                     <td className="p-3 flex flex-wrap gap-1">
-                    {problem.tags.map(topic => (
-                      <span key={`${problem._id}-${topic}`} className="bg-slate-700 text-xs px-2 py-0.5 rounded-full">{topic}</span>
-                    ))}
-                  </td>
-                    <td className="px-4 py-3">
-                      {new Date(problem.createdAt).toLocaleDateString()}
+                      {problem.tags.map(topic => (
+                        <span key={`${problem._id}-${topic}`} className="bg-slate-700 text-xs px-2 py-0.5 rounded-full">{topic}</span>
+                      ))}
                     </td>
+                    <td className="px-4 py-3">{new Date(problem.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-center">
-                      <Link
-                        to={`/admin/update/${problem._id}`}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-md transition-colors"
-                      >
+                      <Link to={`/admin/update/${problem._id}`} className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-md transition-colors">
                         Update
                       </Link>
                     </td>
@@ -117,12 +113,7 @@ const AdminProblem = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-6 text-gray-400">
-                    <div className="flex mt-6 justify-center h-screen bg-[#1E2939] text-yellow-400">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-                    <span className="ml-3 text-lg">Loading Problems...</span>
-                  </div>
-                  </td>
+                  <td colSpan="6" className="p-6 text-center text-gray-400">No problems found.</td>
                 </tr>
               )}
             </tbody>
