@@ -8,21 +8,21 @@ const AboutUs = () => {
             role: "Software Engineer",
             image: "/diwakar.png",
             bio: "Visionary developer with a passion for building scalable educational platforms. Diwakar leads the overall product strategy and technical architecture of CodeZenith.",
-            linkedin: "#"
+            linkedin: "https://www.linkedin.com/in/diwakar-singh-886590293/"
         },
         {
             name: "Chetan Raj Tyagi",
             role: "Lead Backend Engineer",
             image: "/chetan.png",
             bio: "Expert in distributed systems and performance optimization. Chetan ensures that the execution engine handles thousands of submissions with zero latency.",
-            linkedin: "#"
+            linkedin: "https://www.linkedin.com/in/chetan-raj-tyagi-a9161828b/"
         },
         {
             name: "Archin Kadyan",
             role: "Frontend Architect",
             image: "/archin.png",
             bio: "A UI/UX specialist who crafts the seamless and responsive experiences our users love. Archin focuses on making complex coding tools intuitive and beautiful.",
-            linkedin: "#"
+            linkedin: "https://www.linkedin.com/in/archin-kadyan-919b81263/"
         }
     ];
 
@@ -89,9 +89,11 @@ const TeamCard = ({ member }) => (
             
             <a 
                 href={member.linkedin} 
-                className="text-blue-400 hover:text-blue-300 text-sm mb-6 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 text-sm mb-6 transition-colors flex items-center gap-1"
             >
-                Connect on LinkedIn
+                🔗 Connect on LinkedIn
             </a>
             
             <p className="text-gray-400 text-sm leading-relaxed italic">
