@@ -1,6 +1,7 @@
 const express=require('express');
 const authRouter=express.Router();
 const {register, login,logout,adminRegister,deleteProfile} = require('../controllers/userAuthenticat');
+const { googleLogin } = require('../controllers/googleAuth');
 const userMiddleware=require('../middleware/userMiddleware');
 const adminMiddleware=require('../middleware/adminMiddleware');
 const userOrAdminMiddleware=require('../middleware/userOrAdminMiddleware');
@@ -9,12 +10,17 @@ const User=require('../modules/user');
 // here Routing of user Register,Login,Logout,getProfile
 authRouter.post('/register', register);
 authRouter.post('/login', login);
-authRouter.post('/logout', userMiddleware, logout);
+authRouter.post('/logout', userOrAdminMiddleware, logout);
 authRouter.post('/admin/register', adminMiddleware, adminRegister);
-authRouter.delete('/deleteprofile',userMiddleware,deleteProfile)
+authRouter.delete('/deleteprofile',userMiddleware,deleteProfile);
+
+// Google OAuth login
+authRouter.post('/google-login', googleLogin);
 authRouter.get('/getAllUsers',userOrAdminMiddleware, async (req,res)=>{
   try{
      const allUsers=await User.find({}).select('_id firstName');
+     console.log(allUsers);
+     
      if(!allUsers){
        return res.status(400).send("Users Not Found");
      }

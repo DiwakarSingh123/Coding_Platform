@@ -11,7 +11,7 @@ const problemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   difficulty: z.enum(["Easy", "Medium", "Hard"]),
-  tags: z.enum(["array", "linkedList", "graph", "dp"]),
+  tags: z.array(z.string().min(1, 'Tag cannot be empty')).min(1, 'At least one tag is required'),
   visibleTestCases: z
     .array(
       z.object({
@@ -45,9 +45,18 @@ const problemSchema = z.object({
       })
     )
     .length(3, "All three languages required"),
+  driverCode: z
+    .array(
+      z.object({
+        language: z.enum(["C++", "Java", "JavaScript"]),
+        code: z.string().min(1, "Driver code is required"),
+      })
+    )
+    .length(3, "All three languages required"),
 });
 
 const UpdateProblem = () => {
+  const [isUpdating, setIsUpdating] = React.useState(false);
   const { id } = useParams(); // get problem id from URL
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -80,11 +89,20 @@ const UpdateProblem = () => {
     name: "hiddenTestCases",
   });
 
+  const {
+    fields: tagFields,
+    append: appendTag,
+    remove: removeTag,
+  } = useFieldArray({
+    control,
+    name: "tags",
+  });
+
   // fetch problem by id and pre-fill form
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const { data } = await axiosClient.get(`/problem/${id}`);
+        const { data } = await axiosClient.get(`/problem/problemById/${id}`);
         reset(data); // pre-fill all fields
       } catch (error) {
         console.error(error);
@@ -95,18 +113,21 @@ const UpdateProblem = () => {
   }, [id, reset]);
 
   const onSubmit = async (formData) => {
+    setIsUpdating(true);
     try {
       const payload = {
         ...formData,
         problemCreator: user?._id,
       };
-      await axiosClient.put(`/problem/update/${id}`, payload);
+      await axiosClient.patch(`/problem/update/${id}`, payload);
 
       alert("Problem updated successfully!");
-      navigate("/admin/dashboard");
+      navigate("/admin");
     } catch (error) {
       console.error(error);
       alert(`Error: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -142,19 +163,26 @@ const UpdateProblem = () => {
           <div className="flex gap-4">
             <select
               {...register("difficulty")}
-              className="select select-bordered"
+              className="select select-bordered w-full"
             >
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
             </select>
+          </div>
+        </div>
 
-            <select {...register("tags")} className="select select-bordered">
-              <option value="array">Array</option>
-              <option value="linkedList">Linked List</option>
-              <option value="graph">Graph</option>
-              <option value="dp">DP</option>
-            </select>
+        {/* Tags */}
+        <div className="card bg-base-100 shadow-lg p-6">
+          <h2 className="font-semibold mb-4">Tags</h2>
+          <div className="space-y-2">
+            {tagFields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <input {...register(`tags.${index}`)} placeholder="Enter tag" className="input input-bordered flex-1" />
+                <button type="button" onClick={() => removeTag(index)} className="btn btn-xs btn-error">Remove</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => appendTag('')} className="btn btn-sm btn-primary mt-2">Add Tag</button>
           </div>
         </div>
 
@@ -190,13 +218,29 @@ const UpdateProblem = () => {
           {[0, 1, 2].map((index) => (
             <div key={index} className="mb-4">
               <h3>{index === 0 ? "C++" : index === 1 ? "Java" : "JavaScript"}</h3>
-              <textarea {...register(`startCode.${index}.initialCode`)} className="textarea textarea-bordered w-full mb-2" rows={5} />
-              <textarea {...register(`refranceSolution.${index}.completeCode`)} className="textarea textarea-bordered w-full" rows={5} />
+              <div className="form-control mb-2">
+                <label className="label text-sm">Initial Code (Function Signature)</label>
+                <textarea {...register(`startCode.${index}.initialCode`)} className="textarea textarea-bordered w-full font-mono" rows={3} />
+              </div>
+              <div className="form-control mb-2">
+                <label className="label text-sm">Reference Solution (Full logic)</label>
+                <textarea {...register(`refranceSolution.${index}.completeCode`)} className="textarea textarea-bordered w-full font-mono" rows={3} />
+              </div>
+              <div className="form-control mb-2">
+                <label className="label text-sm">Driver Code (Hidden Wrapper)</label>
+                <textarea {...register(`driverCode.${index}.code`)} className="textarea textarea-bordered w-full font-mono" rows={5} placeholder="Code to read input, call function, print output" />
+              </div>
             </div>
           ))}
         </div>
 
-        <button type="submit" className="btn btn-primary w-full">Update Problem</button>
+        <button 
+          type="submit" 
+          disabled={isUpdating}
+          className="btn btn-primary w-full disabled:bg-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+        >
+          {isUpdating ? 'Updating Problem...' : 'Update Problem'}
+        </button>
       </form>
     </div>
   );

@@ -144,11 +144,13 @@ const deleteProfile= async(req,res) =>{
     res.status(400).send("User not found")
   }
 }
+
+
 module.exports = {
   register,
   login,
   logout,
   adminRegister,
-  deleteProfile
+  deleteProfile,
 //   getProfile
 };

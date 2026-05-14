@@ -3,44 +3,67 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate,NavLink } from "react-router";
+import { Link, useNavigate, NavLink } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../../authSlicer";
-
+import { registerUser, googleLogin } from "../../authSlicer";
+import { auth, provider } from "../utils/Firebase";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const Singup = () => {
-  //redux use hre..........
-  const dispatch=useDispatch();
-  const {isAuthenticated,loading,error}=useSelector((state)=>state.auth);
-  const navigate=useNavigate()
-
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, error, user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-    //Here we will write the zod schema for validation
-    const zodeSchema = z.object({
-        firstName: z.string().min(3, "Minimum character should be 3"),
-        emailId: z.string().email("Invalid Email"),
-        password: z.string().min(8, "Password is to weak")
-    })
+  const zodeSchema = z.object({
+    firstName: z.string().min(3, "Minimum character should be 3"),
+    emailId: z.string().email("Invalid Email"),
+    password: z.string().min(8, "Password is too weak")
+  });
 
-    //here handling the form
-    const { register, handleSubmit, formState: { errors }, } = useForm({ resolver: zodResolver(zodeSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(zodeSchema) });
 
-    
-    const onSubmit = (data) => {
-       dispatch(registerUser(data));
-       console.log(data);
+  const onSubmit = (data) => {
+    dispatch(registerUser(data));
+  };
 
-    }
-    useEffect(()=>{
-      if(isAuthenticated){
-        navigate('/');
+  // Redirect after successful auth
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === "admin") {
+        navigate('/admin');
+      } else {
+        navigate('/problems');
       }
-    },[navigate])
+    }
+  }, [isAuthenticated, user, navigate]);
 
-    
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      setGoogleLoading(true);
+      const result = await signInWithPopup(auth, provider);
+      // Get the real Google OAuth ID token (NOT the Firebase token)
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const idToken = credential.idToken;
+      await dispatch(googleLogin(idToken)).unwrap();
+      // Navigation handled by the useEffect above
+    } catch (err) {
+      console.error("Google sign-up error:", err);
+      toast.error("Google sign-in failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-800 text-white">
@@ -96,8 +119,12 @@ const Singup = () => {
         </div>
 
         {/* Create Account Button */}
-        <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded mb-4">
-          Create Account
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded mb-4 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? "Creating account..." : "Create Account"}
         </button>
 
         {/* Divider */}
@@ -108,23 +135,26 @@ const Singup = () => {
         </div>
 
         {/* Google Button */}
-        <button className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded mb-3 border border-gray-600">
-          <FcGoogle size={20} />
-          Sign up with Google
-        </button>
-
-        {/* GitHub Button */}
-        <button className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded border border-gray-600">
-          <FaGithub size={20} />
-          Sign up with GitHub
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded border border-gray-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {googleLoading ? (
+            <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-400"></span>
+          ) : (
+            <FcGoogle size={20} />
+          )}
+          {googleLoading ? "Signing in..." : "Sign up with Google"}
         </button>
 
         {/* Sign in Link */}
         <p className="text-center text-sm mt-4 text-gray-400">
           Already have an account?{" "}
-            <span className="font-medium text-yellow-400 hover:underline">
-              <NavLink to="/login">Sing in</NavLink>
-            </span>
+          <span className="font-medium text-yellow-400 hover:underline">
+            <NavLink to="/login">Sign in</NavLink>
+          </span>
         </p>
       </form>
     </div>
@@ -132,5 +162,3 @@ const Singup = () => {
 };
 
 export default Singup;
-
-

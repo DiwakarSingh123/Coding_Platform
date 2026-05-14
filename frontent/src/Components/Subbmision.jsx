@@ -1,147 +1,131 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../utils/axiosClient";
 import { FaChevronDown, FaChevronUp, FaRegCopy } from "react-icons/fa";
-import { toast } from "react-toastify";
 import Editor from "@monaco-editor/react";
+import { CheckCircle, XCircle, Clock, Cpu, AlertCircle } from "lucide-react";
 
 const Subbmision = ({ pid }) => {
-  const [submissions, setSubmissions] = useState([]);
-  const [expandedRow, setExpandedRow] = useState(null);
+    const [submissions, setSubmissions] = useState([]);
+    const [expandedRow, setExpandedRow] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const fetchAllSubmission = async () => {
-      try {
-        const res = await axiosClient.get(`/problem/submitedProblem/${pid}`);
-        console.log("Fetched Submissions:", res.data);
+    useEffect(() => {
+        const fetchAllSubmission = async () => {
+            setLoading(true);
+            try {
+                const res = await axiosClient.get(`/problem/submitedProblem/${pid}`);
+                setSubmissions(Array.isArray(res.data) ? res.data : []);
+            } catch (err) {
+                console.error("Error fetching submissions:", err);
+                setSubmissions([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAllSubmission();
+    }, [pid]);
 
-       setSubmissions(Array.isArray(res.data) ? res.data : []);
-        console.log(submissions.length);
-        
-      } catch (err) {
-        console.error("Error fetching submissions:", err);
-        setSubmissions([]);
-      }
+    const getStatusConfig = (status) => {
+        switch (status?.toLowerCase()) {
+            case "accepted": return { color: "text-green-400", bg: "bg-green-400/10 border-green-400/20", icon: <CheckCircle size={13} /> };
+            case "wrong": return { color: "text-red-400", bg: "bg-red-400/10 border-red-400/20", icon: <XCircle size={13} /> };
+            case "error": return { color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/20", icon: <AlertCircle size={13} /> };
+            case "pending": return { color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/20", icon: <Clock size={13} /> };
+            default: return { color: "text-gray-400", bg: "bg-gray-400/10 border-gray-400/20", icon: null };
+        }
     };
-    fetchAllSubmission();
-  }, [pid]);
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "accepted":
-        return "text-green-500";
-      case "wrong":
-        return "text-red-500";
-      case "time limit exceeded":
-        return "text-yellow-500";
-      case "error":
-        return "text-orange-500";
-      case "pending":
-        return "text-yellow-500";
-      default:
-        return "text-gray-400";
-    }
-  };
+    const formatTimeAgo = (dateStr) => {
+        if (!dateStr) return "";
+        const diff = Date.now() - new Date(dateStr).getTime();
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return "just now";
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return `${Math.floor(hours / 24)}d ago`;
+    };
 
-  const formatTimeAgo = (dateStr) => {
-    if (!dateStr) return "";
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    if (minutes < 1) return "just now";
-    if (minutes < 60) return `${minutes} min ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hr ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  };
+    const handleCopy = (code) => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
-  const handleCopy = (code) => {
-    navigator.clipboard.writeText(code);
-    toast.success("Code copied!");
-  };
+    if (loading) return (
+        <div className="flex items-center justify-center py-16">
+            <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
 
- if (!submissions) {
-  return <div className="p-6 text-gray-400">Loading submissions...</div>;
-}
-  return (
-    <div className="p-6 text-white">
-      <h2 className="text-xl font-bold mb-2">Problem Submissions</h2>
-      <p className="text-gray-400 mb-6">Viewing history for this problem</p>
+    return (
+        <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-white">My Submissions</h2>
+                <span className="text-xs text-gray-500">{submissions.length} total</span>
+            </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-700">
-        <table className="table-auto w-full text-sm">
-          <thead className="bg-gray-800 text-gray-400">
-            <tr>
-              <th className="px-4 py-2"></th>
-              <th className="px-4 py-2 text-left">STATUS</th>
-              <th className="px-4 py-2 text-left">LANGUAGE</th>
-              <th className="px-4 py-2 text-left">RUNTIME</th>
-              <th className="px-4 py-2 text-left">MEMORY</th>
-              <th className="px-4 py-2 text-left">TIME</th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-900 divide-y divide-gray-700">
-  {submissions.length > 0 ? (
-    submissions.map((sub, idx) => (
-      <React.Fragment key={idx}>
-        <tr
-          className="hover:bg-gray-800 cursor-pointer"
-          onClick={() =>
-            setExpandedRow(expandedRow === idx ? null : idx)
-          }
-        >
-          <td className="px-4 py-2">
-            {expandedRow === idx ? <FaChevronUp /> : <FaChevronDown />}
-          </td>
-          <td
-            className={`px-4 py-2 font-medium ${getStatusColor(sub.status)}`}
-          >
-            {sub.status}
-          </td>
-          <td className="px-4 py-2">{sub.language}</td>
-          <td className="px-4 py-2">{sub.runtime} ms</td>
-          <td className="px-4 py-2">{sub.memory} MB</td>
-          <td className="px-4 py-2">{formatTimeAgo(sub.createdAt)}</td>
-        </tr>
-        {expandedRow === idx && (
-          <tr>
-            <td colSpan="6" className="bg-gray-950 p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">Submitted Code</h3>
-                <button
-                  onClick={() => handleCopy(sub.code)}
-                  className="flex items-center gap-2 px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-md text-sm"
-                >
-                  <FaRegCopy /> Copy
-                </button>
-              </div>
-              <Editor
-                height="300px"
-                language={sub.language?.toLowerCase()}
-                value={sub.code}
-                theme="vs-dark"
-                options={{
-                  readOnly: true,
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                }}
-              />
-            </td>
-          </tr>
-        )}
-      </React.Fragment>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="6" className="px-4 py-6 text-center text-gray-500">
-        No submissions yet.
-      </td>
-    </tr>
-  )}
-</tbody>
-        </table>
-      </div>
-    </div>
-  );
+            {submissions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                    <span className="text-4xl mb-3">📭</span>
+                    <p className="text-sm">No submissions yet</p>
+                    <p className="text-xs mt-1 text-gray-600">Submit your solution to see it here</p>
+                </div>
+            ) : (
+                <div className="space-y-2">
+                    {submissions.map((sub, idx) => {
+                        const { color, bg, icon } = getStatusConfig(sub.status);
+                        const isExpanded = expandedRow === idx;
+                        return (
+                            <div key={idx} className="rounded-lg border border-[#3d3d3d] overflow-hidden">
+                                <button
+                                    className="w-full flex items-center gap-3 px-4 py-3 bg-[#282828] hover:bg-[#2f2f2f] transition-colors text-left"
+                                    onClick={() => setExpandedRow(isExpanded ? null : idx)}
+                                >
+                                    <div className={`flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full border ${bg} ${color}`}>
+                                        {icon}
+                                        {sub.status === "accepted" ? "Accepted" : sub.status === "wrong" ? "Wrong Answer" : sub.status === "error" ? "Runtime Error" : sub.status}
+                                    </div>
+                                    <span className="text-xs text-gray-400 bg-[#3d3d3d] px-2 py-0.5 rounded">{sub.language}</span>
+                                    {sub.status === "accepted" && (
+                                        <>
+                                            <span className="text-xs text-gray-500 flex items-center gap-1"><Clock size={11} />{sub.runtime}s</span>
+                                            <span className="text-xs text-gray-500 flex items-center gap-1"><Cpu size={11} />{sub.memory}KB</span>
+                                        </>
+                                    )}
+                                    <span className="ml-auto text-xs text-gray-600">{formatTimeAgo(sub.createdAt)}</span>
+                                    {isExpanded ? <FaChevronUp className="text-gray-500 text-xs" /> : <FaChevronDown className="text-gray-500 text-xs" />}
+                                </button>
+
+                                {isExpanded && (
+                                    <div className="border-t border-[#3d3d3d]">
+                                        <div className="flex items-center justify-between px-4 py-2 bg-[#1e1e1e]">
+                                            <span className="text-xs text-gray-400">Submitted Code</span>
+                                            <button
+                                                onClick={() => handleCopy(sub.code)}
+                                                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white px-2 py-1 rounded bg-[#3d3d3d] hover:bg-[#4d4d4d] transition-colors"
+                                            >
+                                                <FaRegCopy size={11} />
+                                                {copied ? "Copied!" : "Copy"}
+                                            </button>
+                                        </div>
+                                        <Editor
+                                            height="280px"
+                                            language={sub.language === "c++" ? "cpp" : sub.language?.toLowerCase()}
+                                            value={sub.code}
+                                            theme="vs-dark"
+                                            options={{ readOnly: true, minimap: { enabled: false }, scrollBeyondLastLine: false, fontSize: 13 }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default Subbmision;

@@ -1,0 +1,734 @@
+[
+  {
+    "_id": "68d4d91503c198646eafb258",
+    "title": "Reverse a String",
+    "description": "Given a string, return its reverse.",
+    "difficulty": "Easy",
+    "tags": [
+      "string",
+      "beginner"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "hello",
+        "output": "olleh",
+        "explanation": "The reverse of hello is olleh",
+        "_id": "68d4d91503c198646eafb259"
+      },
+      {
+        "input": "abc",
+        "output": "cba",
+        "explanation": "The reverse of abc is cba",
+        "_id": "68d4d91503c198646eafb25a"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "openai",
+        "output": "ianepo",
+        "_id": "68d4d91503c198646eafb25b"
+      },
+      {
+        "input": "a",
+        "output": "a",
+        "_id": "68d4d91503c198646eafb25c"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\nusing namespace std;\nint main(){\n  string s;\n  cin >> s;\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d91503c198646eafb25d"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function reverseString(s){\n  // your code here\n}",
+        "_id": "68d4d91503c198646eafb25e"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    String s = sc.next();\n    // your code here\n  }\n}",
+        "_id": "68d4d91503c198646eafb25f"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){\n  string s;\n  cin >> s;\n  reverse(s.begin(), s.end());\n  cout << s;\n  return 0;\n}",
+        "_id": "68d4d91503c198646eafb260"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\nlet input=\"\";\nprocess.stdin.on(\"data\",chunk=>input+=chunk);\nprocess.stdin.on(\"end\",()=>{\n  const s = input.trim();\n  console.log(s.split('').reverse().join(''));\n});",
+        "_id": "68d4d91503c198646eafb261"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    String s = sc.next();\n    StringBuilder sb = new StringBuilder(s);\n    System.out.println(sb.reverse().toString());\n  }\n}",
+        "_id": "68d4d91503c198646eafb262"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:54:29.928Z",
+    "updatedAt": "2025-09-25T05:54:29.928Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4d94d03c198646eafb26d",
+    "title": "Check Prime Number",
+    "description": "Given an integer n, check if it is a prime number.",
+    "difficulty": "Easy",
+    "tags": [
+      "math",
+      "prime",
+      "beginner"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "7",
+        "output": "Yes",
+        "explanation": "7 is prime",
+        "_id": "68d4d94d03c198646eafb26e"
+      },
+      {
+        "input": "10",
+        "output": "No",
+        "explanation": "10 is divisible by 2 and 5",
+        "_id": "68d4d94d03c198646eafb26f"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "2",
+        "output": "Yes",
+        "_id": "68d4d94d03c198646eafb270"
+      },
+      {
+        "input": "1009",
+        "output": "Yes",
+        "_id": "68d4d94d03c198646eafb271"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\nusing namespace std;\nint main(){\n  int n;\n  cin >> n;\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d94d03c198646eafb272"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function isPrime(n){\n  // your code here\n}",
+        "_id": "68d4d94d03c198646eafb273"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    // your code here\n  }\n}",
+        "_id": "68d4d94d03c198646eafb274"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\nusing namespace std;\nbool isPrime(int n){\n  if(n<2) return false;\n  for(int i=2;i*i<=n;i++) if(n%i==0) return false;\n  return true;\n}\nint main(){\n  int n;cin>>n;\n  cout << (isPrime(n)?\"Yes\":\"No\");\n  return 0;\n}",
+        "_id": "68d4d94d03c198646eafb275"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\nlet input=\"\";\nprocess.stdin.on(\"data\",chunk=>input+=chunk);\nprocess.stdin.on(\"end\",()=>{\n  const n=+input.trim();\n  if(n<2){console.log(\"No\");return;}\n  for(let i=2;i*i<=n;i++){\n    if(n%i===0){console.log(\"No\");return;}\n  }\n  console.log(\"Yes\");\n});",
+        "_id": "68d4d94d03c198646eafb276"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  static boolean isPrime(int n){\n    if(n<2) return false;\n    for(int i=2;i*i<=n;i++) if(n%i==0) return false;\n    return true;\n  }\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt();\n    System.out.println(isPrime(n)?\"Yes\":\"No\");\n  }\n}",
+        "_id": "68d4d94d03c198646eafb277"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:55:25.215Z",
+    "updatedAt": "2025-09-25T05:55:25.215Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4d96603c198646eafb27a",
+    "title": "Maximum Subarray Sum",
+    "description": "Given an array of integers, find the contiguous subarray with the largest sum.",
+    "difficulty": "Medium",
+    "tags": [
+      "array",
+      "kadane",
+      "dynamic-programming"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "5\n-2 1 -3 4 -1",
+        "output": "4",
+        "explanation": "Max subarray is [4] with sum 4",
+        "_id": "68d4d96603c198646eafb27b"
+      },
+      {
+        "input": "5\n1 2 3 -2 5",
+        "output": "9",
+        "explanation": "Max subarray is [1,2,3,-2,5] = 9",
+        "_id": "68d4d96603c198646eafb27c"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "3\n-1 -2 -3",
+        "output": "-1",
+        "_id": "68d4d96603c198646eafb27d"
+      },
+      {
+        "input": "6\n2 -1 2 3 4 -5",
+        "output": "10",
+        "_id": "68d4d96603c198646eafb27e"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\n#include<vector>\nusing namespace std;\nint main(){\n  int n;cin>>n;\n  vector<int>a(n);\n  for(int i=0;i<n;i++)cin>>a[i];\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d96603c198646eafb27f"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function maxSubarraySum(arr){\n  // your code here\n}",
+        "_id": "68d4d96603c198646eafb280"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt();\n    int[] arr=new int[n];\n    for(int i=0;i<n;i++)arr[i]=sc.nextInt();\n    // your code here\n  }\n}",
+        "_id": "68d4d96603c198646eafb281"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\n#include<vector>\nusing namespace std;\nint main(){\n  int n;cin>>n;\n  vector<int>a(n);\n  for(int i=0;i<n;i++)cin>>a[i];\n  int sum=a[0],maxSum=a[0];\n  for(int i=1;i<n;i++){\n    sum=max(a[i],sum+a[i]);\n    maxSum=max(maxSum,sum);\n  }\n  cout<<maxSum;\n  return 0;\n}",
+        "_id": "68d4d96603c198646eafb282"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\nlet input=\"\";\nprocess.stdin.on(\"data\",chunk=>input+=chunk);\nprocess.stdin.on(\"end\",()=>{\n  input=input.trim().split(/\\s+/).map(Number);\n  const n=input[0];\n  const arr=input.slice(1);\n  let sum=arr[0],maxSum=arr[0];\n  for(let i=1;i<n;i++){\n    sum=Math.max(arr[i],sum+arr[i]);\n    maxSum=Math.max(maxSum,sum);\n  }\n  console.log(maxSum);\n});",
+        "_id": "68d4d96603c198646eafb283"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt();\n    int[] arr=new int[n];\n    for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n    int sum=arr[0],maxSum=arr[0];\n    for(int i=1;i<n;i++){\n      sum=Math.max(arr[i],sum+arr[i]);\n      maxSum=Math.max(maxSum,sum);\n    }\n    System.out.println(maxSum);\n  }\n}",
+        "_id": "68d4d96603c198646eafb284"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:55:50.006Z",
+    "updatedAt": "2025-09-25T05:55:50.006Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4d99903c198646eafb287",
+    "title": "Nth Fibonacci Number",
+    "description": "Return the Nth Fibonacci number (0-indexed).",
+    "difficulty": "Medium",
+    "tags": [
+      "recursion",
+      "dynamic-programming",
+      "sequence"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "5",
+        "output": "5",
+        "explanation": "Fibonacci sequence: 0,1,1,2,3,5",
+        "_id": "68d4d99903c198646eafb288"
+      },
+      {
+        "input": "10",
+        "output": "55",
+        "explanation": "Fibonacci sequence: 0,1,1,2,3,5,8,13,21,34,55",
+        "_id": "68d4d99903c198646eafb289"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "20",
+        "output": "6765",
+        "_id": "68d4d99903c198646eafb28a"
+      },
+      {
+        "input": "30",
+        "output": "832040",
+        "_id": "68d4d99903c198646eafb28b"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\nusing namespace std;\nint main(){\n  int n;\n  cin >> n;\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d99903c198646eafb28c"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function fibonacci(n){\n  // your code here\n}",
+        "_id": "68d4d99903c198646eafb28d"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    // your code here\n  }\n}",
+        "_id": "68d4d99903c198646eafb28e"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\nusing namespace std;\nint fibonacci(int n){\n  if(n<=1) return n;\n  int a=0,b=1,c;\n  for(int i=2;i<=n;i++){\n    c=a+b;\n    a=b;\n    b=c;\n  }\n  return b;\n}\nint main(){\n  int n;cin>>n;\n  cout<<fibonacci(n);\n  return 0;\n}",
+        "_id": "68d4d99903c198646eafb28f"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\nlet input=\"\";\nprocess.stdin.on(\"data\",chunk=>input+=chunk);\nprocess.stdin.on(\"end\",()=>{\n  const n=+input.trim();\n  let a=0,b=1;\n  if(n===0)console.log(0);\n  else if(n===1)console.log(1);\n  else{\n    for(let i=2;i<=n;i++){\n      let c=a+b;\n      a=b;b=c;\n    }\n    console.log(b);\n  }\n});",
+        "_id": "68d4d99903c198646eafb290"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt();\n    int a=0,b=1;\n    if(n==0) System.out.println(0);\n    else if(n==1) System.out.println(1);\n    else{\n      for(int i=2;i<=n;i++){\n        int c=a+b;\n        a=b;b=c;\n      }\n      System.out.println(b);\n    }\n  }\n}",
+        "_id": "68d4d99903c198646eafb291"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:56:41.914Z",
+    "updatedAt": "2025-09-25T05:56:41.914Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4d9a903c198646eafb294",
+    "title": "Factorial of a Number",
+    "description": "Given an integer n, return its factorial.",
+    "difficulty": "Easy",
+    "tags": [
+      "math",
+      "recursion",
+      "beginner"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "5",
+        "output": "120",
+        "explanation": "5! = 5*4*3*2*1 = 120",
+        "_id": "68d4d9a903c198646eafb295"
+      },
+      {
+        "input": "0",
+        "output": "1",
+        "explanation": "0! = 1 by definition",
+        "_id": "68d4d9a903c198646eafb296"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "7",
+        "output": "5040",
+        "_id": "68d4d9a903c198646eafb297"
+      },
+      {
+        "input": "10",
+        "output": "3628800",
+        "_id": "68d4d9a903c198646eafb298"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\nusing namespace std;\nint main(){\n  int n;\n  cin >> n;\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d9a903c198646eafb299"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function factorial(n){\n  // your code here\n}",
+        "_id": "68d4d9a903c198646eafb29a"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    // your code here\n  }\n}",
+        "_id": "68d4d9a903c198646eafb29b"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\nusing namespace std;\nint factorial(int n){\n  if(n<=1) return 1;\n  return n*factorial(n-1);\n}\nint main(){\n  int n;cin>>n;\n  cout<<factorial(n);\n  return 0;\n}",
+        "_id": "68d4d9a903c198646eafb29c"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\nlet input=\"\";\nprocess.stdin.on(\"data\",chunk=>input+=chunk);\nprocess.stdin.on(\"end\",()=>{\n  const n=+input.trim();\n  const factorial=(n)=> n<=1?1:n*factorial(n-1);\n  console.log(factorial(n));\n});",
+        "_id": "68d4d9a903c198646eafb29d"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  static int factorial(int n){\n    if(n<=1) return 1;\n    return n*factorial(n-1);\n  }\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    int n=sc.nextInt();\n    System.out.println(factorial(n));\n  }\n}",
+        "_id": "68d4d9a903c198646eafb29e"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:56:57.955Z",
+    "updatedAt": "2025-09-25T05:56:57.955Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4d9e103c198646eafb2a1",
+    "title": "Longest Substring Without Repeating Characters",
+    "description": "Given a string, find the length of the longest substring without repeating characters.",
+    "difficulty": "Medium",
+    "tags": [
+      "string",
+      "sliding-window",
+      "hash-map"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "abcabcbb",
+        "output": "3",
+        "explanation": "The longest substring without repeating characters is 'abc'.",
+        "_id": "68d4d9e103c198646eafb2a2"
+      },
+      {
+        "input": "bbbbb",
+        "output": "1",
+        "explanation": "The longest substring is 'b'.",
+        "_id": "68d4d9e103c198646eafb2a3"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "pwwkew",
+        "output": "3",
+        "_id": "68d4d9e103c198646eafb2a4"
+      },
+      {
+        "input": "dvdf",
+        "output": "3",
+        "_id": "68d4d9e103c198646eafb2a5"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\n#include<string>\nusing namespace std;\nint main(){\n  string s;\n  cin >> s;\n  // your code here\n  return 0;\n}",
+        "_id": "68d4d9e103c198646eafb2a6"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function lengthOfLongestSubstring(s){\n  // your code here\n}",
+        "_id": "68d4d9e103c198646eafb2a7"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    String s = sc.nextLine();\n    // your code here\n  }\n}",
+        "_id": "68d4d9e103c198646eafb2a8"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\n#include<string>\n#include<unordered_map>\nusing namespace std;\nint main(){\n  string s; cin>>s;\n  unordered_map<char,int> mp;\n  int left=0,maxLen=0;\n  for(int right=0;right<s.size();right++){\n    if(mp.count(s[right])) left=max(left, mp[s[right]]+1);\n    mp[s[right]]=right;\n    maxLen=max(maxLen,right-left+1);\n  }\n  cout<<maxLen;\n  return 0;\n}",
+        "_id": "68d4d9e103c198646eafb2a9"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "function lengthOfLongestSubstring(s){\n  let set=new Set(),left=0,maxLen=0;\n  for(let right=0;right<s.length;right++){\n    while(set.has(s[right])){set.delete(s[left]); left++;}\n    set.add(s[right]);\n    maxLen=Math.max(maxLen,right-left+1);\n  }\n  return maxLen;\n}\nprocess.stdin.resume();\nprocess.stdin.setEncoding('utf8');\nlet input='';\nprocess.stdin.on('data',chunk=>input+=chunk);\nprocess.stdin.on('end',()=>console.log(lengthOfLongestSubstring(input.trim())));",
+        "_id": "68d4d9e103c198646eafb2aa"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc=new Scanner(System.in);\n    String s=sc.nextLine();\n    Set<Character> set=new HashSet<>();\n    int left=0,maxLen=0;\n    for(int right=0;right<s.length();right++){\n      while(set.contains(s.charAt(right))){\n        set.remove(s.charAt(left)); left++;\n      }\n      set.add(s.charAt(right));\n      maxLen=Math.max(maxLen,right-left+1);\n    }\n    System.out.println(maxLen);\n  }\n}",
+        "_id": "68d4d9e103c198646eafb2ab"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T05:57:53.042Z",
+    "updatedAt": "2025-09-25T05:57:53.042Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4dbd503c198646eafb2e4",
+    "title": "Longest Substring Without Repeating ",
+    "description": "Given a string, find the length of the longest substring without repeating characters.",
+    "difficulty": "Hard",
+    "tags": [
+      "strings",
+      "hash-maps",
+      "sliding-window"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "abcabcbb",
+        "output": "3",
+        "explanation": "Longest substring is 'abc'",
+        "_id": "68d4dbd503c198646eafb2e5"
+      },
+      {
+        "input": "bbbbb",
+        "output": "1",
+        "explanation": "Longest substring is 'b'",
+        "_id": "68d4dbd503c198646eafb2e6"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "pwwkew",
+        "output": "3",
+        "_id": "68d4dbd503c198646eafb2e7"
+      },
+      {
+        "input": "\n",
+        "output": "0",
+        "_id": "68d4dbd503c198646eafb2e8"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n  // your code here\n  return 0;\n}",
+        "_id": "68d4dbd503c198646eafb2e9"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function lengthOfLongestSubstring(s) {\n  // your code here\n}",
+        "_id": "68d4dbd503c198646eafb2ea"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    // your code here\n  }\n}",
+        "_id": "68d4dbd503c198646eafb2eb"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include <iostream>\n#include <unordered_set>\n#include <string>\nusing namespace std;\nint main() { string s; cin >> s; unordered_set<char> set; int left=0, res=0; for(int right=0; right<s.size(); right++){ while(set.count(s[right])) set.erase(s[left++]); set.insert(s[right]); res=max(res,right-left+1); } cout << res; return 0; }",
+        "_id": "68d4dbd503c198646eafb2ec"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume(); process.stdin.setEncoding('utf-8'); let input=''; process.stdin.on('data', chunk=>input+=chunk); process.stdin.on('end', ()=>{ const s=input.trim(); const set=new Set(); let left=0,res=0; for(let right=0;right<s.length;right++){ while(set.has(s[right])){ set.delete(s[left]); left++; } set.add(s[right]); res=Math.max(res,right-left+1); } console.log(res); });",
+        "_id": "68d4dbd503c198646eafb2ed"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*; public class Main { public static void main(String[] args){ Scanner sc=new Scanner(System.in); String s=sc.next(); Set<Character> set=new HashSet<>(); int left=0,res=0; for(int right=0; right<s.length(); right++){ while(set.contains(s.charAt(right))){ set.remove(s.charAt(left)); left++; } set.add(s.charAt(right)); res=Math.max(res,right-left+1); } System.out.println(res); } }",
+        "_id": "68d4dbd503c198646eafb2ee"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-25T06:06:13.609Z",
+    "updatedAt": "2025-09-25T06:06:13.609Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d4e726ce0a3072b58e88ff",
+    "title": "Longest Palindromic Substring",
+    "description": "Given two integers, return their sum.",
+    "difficulty": "Hard",
+    "tags": [
+      "strings",
+      "dynamic-programming"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "2 3",
+        "output": "5",
+        "explanation": "2 + 3 = 5",
+        "_id": "68a08bbfb535b95b64cea292"
+      },
+      {
+        "input": "10 15",
+        "output": "25",
+        "explanation": "10 + 15 = 25",
+        "_id": "68a08bbfb535b95b64cea293"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "100 200",
+        "output": "300",
+        "_id": "68a08bbfb535b95b64cea294"
+      },
+      {
+        "input": "-50 25",
+        "output": "-25",
+        "_id": "68a08bbfb535b95b64cea295"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include<iostream>\nusing namespace std;\nint main() {\n  int a, b;\n  // your code here\n  return 0;\n}",
+        "_id": "68a08bbfb535b95b64cea296"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "function addTwoNumbers(a, b) {\n  // your code here\n}",
+        "_id": "68a08bbfb535b95b64cea297"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int a = sc.nextInt();\n    int b = sc.nextInt();\n    // your code here\n  }\n}",
+        "_id": "68a08bbfb535b95b64cea298"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include<iostream>\nusing namespace std;\nint main() {\n  int a, b;\n  cin >> a >> b;\n  cout << a + b;\n  return 0;\n}",
+        "_id": "68a08bbfb535b95b64cea299"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\n\nlet input = \"\";\nprocess.stdin.on(\"data\", function(chunk) {\n  input += chunk;\n});\n\nprocess.stdin.on(\"end\", function() {\n  input = input.trim().split(\" \").map(Number);\n  const a = input[0];\n  const b = input[1];\n  console.log(a + b);\n});",
+        "_id": "68a08bbfb535b95b64cea29a"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int a = sc.nextInt();\n    int b = sc.nextInt();\n    System.out.println(a + b);\n  }\n}",
+        "_id": "68a08bbfb535b95b64cea29b"
+      }
+    ],
+    "problemCreator": "68a0806668e392d775f71dd2",
+    "createdAt": "2025-08-16T13:38:01.560Z",
+    "updatedAt": "2025-08-16T13:46:39.307Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d77354cce3eeb8603f130f",
+    "title": "K-nighbore",
+    "description": "fixed the gofha",
+    "difficulty": "Hard",
+    "tags": [
+      "dp"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "1 4",
+        "output": "5",
+        "explanation": "check it",
+        "_id": "68d77354cce3eeb8603f1310"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "4 8",
+        "output": "12",
+        "_id": "68d77354cce3eeb8603f1311"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include <iostream>\nusing namespace std;\n\n\nint main() {\nint a, b;\ncin >> a >> b;\ncout << a + b;\nreturn 0;\n}",
+        "_id": "68d77354cce3eeb8603f1312"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\n\n\npublic class Main {\npublic static void main(String[] args) {\nScanner sc = new Scanner(System.in);\nint a = sc.nextInt();\nint b = sc.nextInt();\nSystem.out.println(a + b);\n}\n}",
+        "_id": "68d77354cce3eeb8603f1313"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\n\n\nlet input = \"\";\n\n\nprocess.stdin.on(\"data\", (chunk) => {\ninput += chunk;\n});\n\n\nprocess.stdin.on(\"end\", () => {\ninput = input.trim().split(\" \").map(Number);\nconst a = input[0];\nconst b = input[1];\nconsole.log(a + b);\n});",
+        "_id": "68d77354cce3eeb8603f1314"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include <iostream>\nusing namespace std;\n\n\nint main() {\nint a, b;\ncin >> a >> b;\ncout << a + b;\nreturn 0;\n}",
+        "_id": "68d77354cce3eeb8603f1315"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\n\n\npublic class Main {\npublic static void main(String[] args) {\nScanner sc = new Scanner(System.in);\nint a = sc.nextInt();\nint b = sc.nextInt();\nSystem.out.println(a + b);\n}\n}",
+        "_id": "68d77354cce3eeb8603f1316"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\n\n\nlet input = \"\";\n\n\nprocess.stdin.on(\"data\", (chunk) => {\ninput += chunk;\n});\n\n\nprocess.stdin.on(\"end\", () => {\ninput = input.trim().split(\" \").map(Number);\nconst a = input[0];\nconst b = input[1];\nconsole.log(a + b);\n});",
+        "_id": "68d77354cce3eeb8603f1317"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-27T05:17:08.484Z",
+    "updatedAt": "2025-09-27T05:17:08.484Z",
+    "__v": 0,
+    "driverCode": []
+  },
+  {
+    "_id": "68d775b6cce3eeb8603f1324",
+    "title": "Merge two Linked List",
+    "description": "merge them",
+    "difficulty": "Medium",
+    "tags": [
+      "linkedList"
+    ],
+    "visibleTestCases": [
+      {
+        "input": "2 8",
+        "output": "10",
+        "explanation": "merge them",
+        "_id": "68d775b6cce3eeb8603f1325"
+      }
+    ],
+    "hiddenTestCases": [
+      {
+        "input": "2 5",
+        "output": "7",
+        "_id": "68d775b6cce3eeb8603f1326"
+      }
+    ],
+    "startCode": [
+      {
+        "language": "C++",
+        "initialCode": "#include <iostream>\nusing namespace std;\n\n\nint main() {\nint a, b;\ncin >> a >> b;\ncout << a + b;\nreturn 0;\n}",
+        "_id": "68d775b6cce3eeb8603f1327"
+      },
+      {
+        "language": "Java",
+        "initialCode": "import java.util.*;\n\n\npublic class Main {\npublic static void main(String[] args) {\nScanner sc = new Scanner(System.in);\nint a = sc.nextInt();\nint b = sc.nextInt();\nSystem.out.println(a + b);\n}\n}",
+        "_id": "68d775b6cce3eeb8603f1328"
+      },
+      {
+        "language": "JavaScript",
+        "initialCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\n\n\nlet input = \"\";\n\n\nprocess.stdin.on(\"data\", (chunk) => {\ninput += chunk;\n});\n\n\nprocess.stdin.on(\"end\", () => {\ninput = input.trim().split(\" \").map(Number);\nconst a = input[0];\nconst b = input[1];\nconsole.log(a + b);\n});",
+        "_id": "68d775b6cce3eeb8603f1329"
+      }
+    ],
+    "refranceSolution": [
+      {
+        "language": "C++",
+        "completeCode": "#include <iostream>\nusing namespace std;\n\n\nint main() {\nint a, b;\ncin >> a >> b;\ncout << a + b;\nreturn 0;\n}",
+        "_id": "68d775b6cce3eeb8603f132a"
+      },
+      {
+        "language": "Java",
+        "completeCode": "import java.util.*;\n\n\npublic class Main {\npublic static void main(String[] args) {\nScanner sc = new Scanner(System.in);\nint a = sc.nextInt();\nint b = sc.nextInt();\nSystem.out.println(a + b);\n}\n}",
+        "_id": "68d775b6cce3eeb8603f132b"
+      },
+      {
+        "language": "JavaScript",
+        "completeCode": "process.stdin.resume();\nprocess.stdin.setEncoding(\"utf-8\");\n\n\nlet input = \"\";\n\n\nprocess.stdin.on(\"data\", (chunk) => {\ninput += chunk;\n});\n\n\nprocess.stdin.on(\"end\", () => {\ninput = input.trim().split(\" \").map(Number);\nconst a = input[0];\nconst b = input[1];\nconsole.log(a + b);\n});",
+        "_id": "68d775b6cce3eeb8603f132c"
+      }
+    ],
+    "problemCreator": "68a080b668e392d775f71dd6",
+    "createdAt": "2025-09-27T05:27:18.471Z",
+    "updatedAt": "2025-09-27T05:27:18.471Z",
+    "__v": 0,
+    "driverCode": []
+  }
+]

@@ -36,7 +36,7 @@ const submissionSchema = new Schema({
   },
   errorMessage: {
     type: String,
-    default: ''
+    default: null
   },
   testCasesPassed: {
     type: Number,

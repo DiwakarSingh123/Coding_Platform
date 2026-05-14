@@ -14,6 +14,11 @@ import CreateProblem from './AdminPage/CreateProblem'
 import UpdateProblem from './AdminPage/UpdateProblem'
 import DeleteProblem from './AdminPage/DeleteProblem'
 import SolveProblem from './Pages/SolveProblem'
+import Leaderboard from './Pages/Leaderboard'
+import Contest from './Pages/Contest'
+import AboutUs from './Pages/AboutUs'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 const App = () => {
   // code likhna isAuthentciated
   const dispatch = useDispatch();
@@ -34,6 +39,7 @@ const App = () => {
 
   return (
     <>
+    
       <nav>
         <Link to="/"></Link>
         <Link to="/login"></Link>
@@ -41,19 +47,24 @@ const App = () => {
 
       </nav>
       <Routes>
-        <Route path='/' element={!isAuthenticated ? <Homepage /> : isAuthenticated && user.role==="user" ? <Homepage /> :isAuthenticated && user.role==="admin" ? <Navigate to="/admin" /> :<Homepage /> } />
+        <Route path='/' element={!isAuthenticated ? <Homepage /> : isAuthenticated && user.role==="admin" ? <Navigate to="/admin" /> : <Navigate to="/problems" /> } />
         <Route path="/login" element={isAuthenticated && user.role==="user" ? <Navigate to="/" /> : isAuthenticated && user.role==="admin" ? <Navigate to="/admin"/>:<Login></Login>}></Route>
         <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <Singup></Singup>}></Route>
         <Route path="/problems" element={isAuthenticated ? <Problems /> : <Navigate to="/signup" />}></Route>
+        <Route path="/leaderboard" element={isAuthenticated ? <Leaderboard /> : <Navigate to="/signup" />}></Route>
+        <Route path="/contests" element={isAuthenticated ? <Contest /> : <Navigate to="/signup" />}></Route>
         <Route path="/admin" element={ isAuthenticated && user.role==="admin" ? <AdminPanel /> : <Navigate to="/" />}>
           <Route index element={<Dashboard />} />   {/* Default Dashboard */}
           <Route path="problems" element={<AdminProblem />} />
           <Route path="create" element={<CreateProblem />} />
-          <Route path="update" element={<UpdateProblem />} />
+          <Route path="update" element={<AdminProblem />} /> {/* Unified list */}
+          <Route path="update/:id" element={<UpdateProblem />} />
           <Route path="delete" element={<DeleteProblem />} />
         </Route>
+        <Route path="/about" element={<AboutUs />}></Route>
         <Route path="problem/:id" element={<SolveProblem />}></Route>
       </Routes>
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
     </>
   )
 }

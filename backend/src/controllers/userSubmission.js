@@ -1,195 +1,201 @@
-const Submission=require('../modules/submitSchema');
-const Problem=require('../modules/problemSchema');
-const {getLanguageById,submitBatch,submitToken}=require('../utils/problemUtility');
+const Submission = require('../modules/submitSchema');
+const Problem = require('../modules/problemSchema');
+const { getLanguageById, submitBatch, submitToken } = require('../utils/problemUtility');
 
-// For submitting code here
-const submitCode = async (req,res)=>{
-    try{
-        const userId=req.result._id;
-        const problemId=req.params.id;
-        let {code, language}=req.body;
+const submitCode = async (req, res) => {
+    try {
+        const userId = req.result._id;
+        const problemId = req.params.id;
+        let { code, language } = req.body;
 
-        // if(language==='cpp'){
-        //     language='c++'
-        // }
-        // console.log(language);
-        
-
-        if(!userId || !problemId || !code || !language){
-            return res.status(400).send("Field is missing");
+        if (!userId || !problemId || !code || !language) {
+            return res.status(400).json({ message: "Field is missing" });
         }
 
-        const problem=await Problem.findById(problemId);
+        const problem = await Problem.findById(problemId);
+        if (!problem) {
+            return res.status(404).json({ message: "Problem not found" });
+        }
 
-        // Now before sending the submited code to Jude0 firslty we store the user code in Database after this wu update it.....
-        const submittedResult=await Submission.create({
+        if (!problem.hiddenTestCases || problem.hiddenTestCases.length === 0) {
+            return res.status(400).json({ message: "Problem has no hidden test cases" });
+        }
+
+        const languageId = getLanguageById(language);
+        if (!languageId) {
+            return res.status(400).json({ message: `Unsupported language: ${language}` });
+        }
+
+        // Create pending submission first
+        const submittedResult = await Submission.create({
             userId,
             problemId,
             code,
             language,
-            status:"pending",
-            testCasesTotal:problem.hiddenTestCases.length
-        })
+            status: "pending",
+            testCasesTotal: problem.hiddenTestCases.length
+        });
 
-        //finding the code langusge......
-        const languageId=getLanguageById(language);
+        // Build batch for Judge0
+        const submissions = problem.hiddenTestCases.map((testcase) => {
+            // Find driver code for this language (case-insensitive)
+            const driverObj = problem.driverCode && problem.driverCode.find(d => d.language.toLowerCase() === language.toLowerCase());
+            let finalCode = code;
+            if (driverObj && driverObj.code) {
+                // Put user code first, then driver code
+                finalCode = code + "\n\n" + driverObj.code;
+            }
 
-         // Now I am creating Batch submission
-        const submissions = problem.hiddenTestCases.map((testcase)=>({
-            source_code:code,
-            language_id: languageId,
-            stdin: testcase.input,
-            expected_output: testcase.output
-        }));
+            return {
+                source_code: finalCode,
+                language_id: languageId,
+                stdin: testcase.input,
+                expected_output: testcase.output
+            };
+        });
 
         const submitResult = await submitBatch(submissions);
-        // console.log(submitResult);
-        
-        const resultToken =  submitResult.map((value)=> value.token);
-        // console.log(resultToken);
-                
-        // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
-                
+
+        if (!submitResult || !Array.isArray(submitResult)) {
+            submittedResult.status = "error";
+            submittedResult.errorMessage = "Judge0 API returned invalid response";
+            await submittedResult.save();
+            return res.status(201).send(submittedResult);
+        }
+
+        const resultToken = submitResult.map((value) => value.token);
         const testResult = await submitToken(resultToken);
-        //  console.log(testResult);
 
-        // updating the submittedResult.......
-        let testCasesPassed=0;
-        let time=0;
-        let memory=0;
-        let errorMessage=null;
-        let status='accepted';
+        let testCasesPassed = 0;
+        let time = 0;
+        let memory = 0;
+        let errorMessage = null;
+        let status = 'accepted';
 
-        for(const test of testResult){
-            if(test.status_id==3){
-                testCasesPassed+=1;
-                time=test.time;
-                memory=Math.max(memory,test.memory);
-            }else{
-                if(test.status_id==4){
-                    status="error";
-                    errorMessage=test.stderr;
-                }else{
-                     status="wrong";
-                    errorMessage=test.stderr;
-                }
+        for (const test of testResult) {
+            if (test.status_id === 3) {
+                testCasesPassed += 1;
+                time = parseFloat(test.time) || 0;
+                memory = Math.max(memory, test.memory || 0);
+            } else {
+                status = test.status_id === 4 ? "error" : "wrong";
+                errorMessage = test.stderr || test.compile_output || test.message || "Unknown error";
             }
         }
 
-        // Store the result in Database in Submission
-        submittedResult.status=status;
-        submittedResult.runtime=time;
-        submittedResult.memory=memory;
-        submittedResult.errorMessage=errorMessage;
-        submittedResult.testCasesPassed=testCasesPassed;
-        
+        submittedResult.status = status;
+        submittedResult.runtime = time;
+        submittedResult.memory = memory;
+        submittedResult.errorMessage = errorMessage;
+        submittedResult.testCasesPassed = testCasesPassed;
         await submittedResult.save();
 
-        // Now here we store the ID of solved problem in User Schema where solvedProblem is awliable....
-        if(!req.result.problemSolved.includes(problemId)){
+        // Track solved problems only on accepted
+        if (status === 'accepted' && !req.result.problemSolved.includes(problemId)) {
             req.result.problemSolved.push(problemId);
             await req.result.save();
         }
-        
+
         res.status(201).send(submittedResult);
 
-    }catch(err){
-        res.status(500).send("Internal server error"+err)
+    } catch (err) {
+        console.error('submitCode error:', err);
+        res.status(500).json({ message: "Internal server error: " + err.message });
     }
-}
+};
 
-// for running code here.....
-const runCode = async (req,res)=>{
-    try{
-        const userId=req.result._id;
-        const problemId=req.params.id;
-        let {code, language}=req.body;
+const runCode = async (req, res) => {
+    try {
+        const userId = req.result._id;
+        const problemId = req.params.id;
+        let { code, language } = req.body;
 
-        if(!userId || !problemId || !code || !language){
-            return res.status(400).send("Field is missing");
+        if (!userId || !problemId || !code || !language) {
+            return res.status(400).json({ message: "Field is missing" });
         }
 
-        // if(language==='cpp'){
-        //     language='c++'
-        // }
-        // console.log(language);
+        const problem = await Problem.findById(problemId);
+        if (!problem) {
+            return res.status(404).json({ message: "Problem not found" });
+        }
 
-        const problem=await Problem.findById(problemId);
+        if (!problem.visibleTestCases || problem.visibleTestCases.length === 0) {
+            return res.status(400).json({ message: "Problem has no visible test cases" });
+        }
 
-        // Now before sending the submited code to Jude0 firslty we store the user code in Database after this wu update it.....
-        const submittedResult=await Submission.create({
+        const languageId = getLanguageById(language);
+        if (!languageId) {
+            return res.status(400).json({ message: `Unsupported language: ${language}` });
+        }
+
+        const submittedResult = await Submission.create({
             userId,
             problemId,
             code,
             language,
-            status:"pending",
-            testCasesTotal:problem.visibleTestCases.length
-        })
+            status: "pending",
+            testCasesTotal: problem.visibleTestCases.length
+        });
 
-        //finding the code langusge......
-        const languageId=getLanguageById(language);
+        const submissions = problem.visibleTestCases.map((testcase) => {
+            // Find driver code for this language (case-insensitive)
+            const driverObj = problem.driverCode && problem.driverCode.find(d => d.language.toLowerCase() === language.toLowerCase());
+            let finalCode = code;
+            if (driverObj && driverObj.code) {
+                // Put user code first, then driver code
+                finalCode = code + "\n\n" + driverObj.code;
+            }
 
-         // Now I am creating Batch submission
-        const submissions = problem.visibleTestCases.map((testcase)=>({
-            source_code:code,
-            language_id: languageId,
-            stdin: testcase.input,
-            expected_output: testcase.output
-        }));
+            return {
+                source_code: finalCode,
+                language_id: languageId,
+                stdin: testcase.input,
+                expected_output: testcase.output
+            };
+        });
 
         const submitResult = await submitBatch(submissions);
-        // console.log(submitResult);
-        
-        const resultToken =  submitResult.map((value)=> value.token);
-        // console.log(resultToken);
-                
-        // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
-                
+
+        if (!submitResult || !Array.isArray(submitResult)) {
+            submittedResult.status = "error";
+            submittedResult.errorMessage = "Judge0 API returned invalid response";
+            await submittedResult.save();
+            return res.status(201).send(submittedResult);
+        }
+
+        const resultToken = submitResult.map((value) => value.token);
         const testResult = await submitToken(resultToken);
-        //  console.log(testResult);
 
-        // updating the submittedResult.......
-        let testCasesPassed=0;
-        let time=0;
-        let memory=0;
-        let errorMessage=null;
-        let status='accepted';
+        let testCasesPassed = 0;
+        let time = 0;
+        let memory = 0;
+        let errorMessage = null;
+        let status = 'accepted';
 
-        for(const test of testResult){
-            if(test.status_id==3){
-                testCasesPassed+=1;
-                time=test.time;
-                memory=Math.max(memory,test.memory);
-            }else{
-                if(test.status_id==4){
-                    status="error";
-                    errorMessage=test.stderr;
-                }else{
-                     status="wrong";
-                    errorMessage=test.stderr;
-                }
+        for (const test of testResult) {
+            if (test.status_id === 3) {
+                testCasesPassed += 1;
+                time = parseFloat(test.time) || 0;
+                memory = Math.max(memory, test.memory || 0);
+            } else {
+                status = test.status_id === 4 ? "error" : "wrong";
+                errorMessage = test.stderr || test.compile_output || test.message || "Unknown error";
             }
         }
 
-        // Store the result in Database in Submission
-        submittedResult.status=status;
-        submittedResult.runtime=time;
-        submittedResult.memory=memory;
-        submittedResult.errorMessage=errorMessage;
-        submittedResult.testCasesPassed=testCasesPassed;
-        
+        submittedResult.status = status;
+        submittedResult.runtime = time;
+        submittedResult.memory = memory;
+        submittedResult.errorMessage = errorMessage;
+        submittedResult.testCasesPassed = testCasesPassed;
         await submittedResult.save();
 
-        // Now here we store the ID of solved problem in User Schema where solvedProblem is awliable....
-        // if(!req.result.problemSolved.includes(problemId)){
-        //     req.result.problemSolved.push(problemId);
-        //     await req.result.save();
-        // }
-        
         res.status(201).send(submittedResult);
 
-    }catch(err){
-        res.status(500).send("Internal server error"+err)
+    } catch (err) {
+        console.error('runCode error:', err);
+        res.status(500).json({ message: "Internal server error: " + err.message });
     }
-}
-module.exports={submitCode,runCode};
+};
+
+module.exports = { submitCode, runCode };

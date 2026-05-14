@@ -18,8 +18,10 @@ import { MdErrorOutline } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
 import { useDispatch,useSelector } from 'react-redux';
 import { useNavigate } from "react-router";
+import { FiMenu, FiX } from "react-icons/fi";
 
 export default function AdminPanel() {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const linkClasses = "flex items-center gap-2 p-2 rounded-md hover:bg-gray-700";
 
   const activeClasses = "bg-blue-600 text-white";
@@ -37,9 +39,21 @@ export default function AdminPanel() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-[#0F172A] text-white ">
+      <div className="flex h-screen overflow-hidden bg-[#0F172A] text-white relative">
+        {/* Mobile Toggle Button */}
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#1E293B] rounded-md border border-gray-700 text-white"
+        >
+          {isSidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+        </button>
+
         {/* Sidebar */}
-        <aside className="w-64 bg-[#1E293B] flex flex-col p-4 h-[100vh]">
+        <aside className={`
+          fixed inset-y-0 left-0 z-40 w-64 bg-[#1E293B] flex flex-col p-4 h-full shrink-0 transform transition-transform duration-300 ease-in-out
+          lg:relative lg:translate-x-0
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <h1 className="text-xl font-bold flex items-center space-x-2 mb-8">
             <span className="text-blue-500">{"</>"}</span>
             <span>CodeAdmin</span>
@@ -51,6 +65,7 @@ export default function AdminPanel() {
                 <NavLink
                   to="/admin"
                   end
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 p-2 rounded-md ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
                     }`
@@ -63,6 +78,7 @@ export default function AdminPanel() {
               <li>
                 <NavLink
                   to="/admin/problems"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 p-2 rounded-md ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
                     }`
@@ -78,6 +94,7 @@ export default function AdminPanel() {
               <li>
                 <NavLink
                   to="/admin/create"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 p-2 rounded-md ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
                     }`
@@ -89,6 +106,7 @@ export default function AdminPanel() {
               <li>
                 <NavLink
                   to="/admin/update"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 p-2 rounded-md ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
                     }`
@@ -100,6 +118,7 @@ export default function AdminPanel() {
               <li>
                 <NavLink
                   to="/admin/delete"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 p-2 rounded-md ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
                     }`
@@ -139,8 +158,16 @@ export default function AdminPanel() {
 
         </aside>
 
+        {/* Overlay for mobile */}
+        {isSidebarOpen && (
+          <div 
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          />
+        )}
+
         {/* Main Content */}
-        <main className="flex-1 p-6 space-y-6">
+        <main className="flex-1 p-4 lg:p-6 space-y-6 overflow-y-auto h-full bg-[#0F172A] pt-16 lg:pt-6">
           <Outlet /> {/* Nested Route Content Loads Here */}
         </main>
       </div>

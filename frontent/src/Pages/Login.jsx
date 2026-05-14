@@ -4,44 +4,68 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../authSlicer";
+import { loginUser, googleLogin } from "../../authSlicer";
+import { auth, provider } from "../utils/Firebase";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const Login = () => {
-  //redux use hre..........
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error,user } = useSelector((state) => state.auth);
-  console.log(user);
-  
+  const { isAuthenticated, loading, error, user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  //Here we will write the zod schema for validation
   const zodeSchema = z.object({
-    // firstName: z.string().min(3, "Minimum character should be 3"),
     emailId: z.string().email("Invalid Email"),
-    password: z.string().min(8, "Password is to weak")
-  })
+    password: z.string().min(8, "Password is too weak")
+  });
 
-  //here handling the form
-  const { register, handleSubmit, formState: { errors }, } = useForm({ resolver: zodResolver(zodeSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(zodeSchema) });
 
-  
   const onSubmit = (data) => {
-    dispatch(loginUser(data))
-    console.log(data);
+    dispatch(loginUser(data));
+  };
 
-  }
-
+  // Redirect after successful auth
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
+    if (isAuthenticated && user) {
+      if (user.role === "admin") {
+        navigate('/admin');
+      } else {
+        navigate('/problems');
+      }
     }
-  }, [navigate])
+  }, [isAuthenticated, user, navigate]);
+
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      setGoogleLoading(true);
+      // Open Firebase Google popup
+      const result = await signInWithPopup(auth, provider);
+      // Get the real Google OAuth ID token (NOT the Firebase token)
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const idToken = credential.idToken;
+      // Send to backend to create/find user and issue JWT cookie
+      await dispatch(googleLogin(idToken)).unwrap();
+      // Navigation handled by the useEffect above
+    } catch (err) {
+      console.error("Google login error:", err);
+      toast.error("Google sign-in failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-800 text-white">
@@ -53,6 +77,7 @@ const Login = () => {
             Sign in to continue your journey.
           </p>
         </div>
+
         {/* Email */}
         <div className="mb-4">
           <label className="block text-sm mb-1">Email Address</label>
@@ -74,7 +99,6 @@ const Login = () => {
             Forgot Password?
           </button>
           <label className="block text-sm mb-1">Password</label>
-          {/* Forgot Password */}
           <input
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
@@ -82,7 +106,6 @@ const Login = () => {
             className="w-full p-2 pr-10 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           />
           {errors.password && (<span className='text-red-600 text-[13px]'>{errors.password.message}</span>)}
-
           <span
             className="absolute right-3 top-9 cursor-pointer text-gray-400"
             onClick={() => setShowPassword(!showPassword)}
@@ -91,10 +114,15 @@ const Login = () => {
           </span>
         </div>
 
-        {/* Create Account Button */}
-        <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded mb-4">
-          Sing in
+        {/* Sign In Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded mb-4 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? "Signing in..." : "Sign In"}
         </button>
+
         {/* Divider */}
         <div className="flex items-center mb-4">
           <hr className="flex-grow border-gray-700" />
@@ -103,18 +131,21 @@ const Login = () => {
         </div>
 
         {/* Google Button */}
-        <button className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded mb-3 border border-gray-600">
-          <FcGoogle size={20} />
-          Sign up with Google
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded border border-gray-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {googleLoading ? (
+            <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-400"></span>
+          ) : (
+            <FcGoogle size={20} />
+          )}
+          {googleLoading ? "Signing in..." : "Sign in with Google"}
         </button>
 
-        {/* GitHub Button */}
-        <button className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 py-2 rounded border border-gray-600">
-          <FaGithub size={20} />
-          Sign up with GitHub
-        </button>
-
-        {/* Sign in Link */}
+        {/* Sign up Link */}
         <p className="text-center text-sm mt-4 text-gray-400">
           Don't have an account yet?{' '}
           <span className="font-medium text-yellow-400 hover:underline">
@@ -127,5 +158,3 @@ const Login = () => {
 };
 
 export default Login;
-
-

@@ -59,6 +59,19 @@ export const userLogout = createAsyncThunk(
     }
 );
 
+// Google OAuth login — sends Firebase ID token to backend
+export const googleLogin = createAsyncThunk(
+    "auth/googleLogin",
+    async (idToken, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.post('/api/google-login', { idToken });
+            return response.data.user;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
+        }
+    }
+);
+
 // now here i create my Slicer...........
 const authSlicer = createSlice({
     name: "auth",
@@ -131,6 +144,23 @@ const authSlicer = createSlice({
             .addCase(userLogout.rejected,(state,action)=>{
                 state.loading=false;
                 state.error = action.payload?.message || 'Something went wrong';
+                state.isAuthenticated=false;
+                state.user=null;
+            })
+            // Google Login
+            .addCase(googleLogin.pending, (state) => {
+                state.loading=true;
+                state.error=null;
+            })
+            .addCase(googleLogin.fulfilled,(state,action)=>{
+                state.loading=false;
+                state.error=null;
+                state.isAuthenticated=!!action.payload;
+                state.user=action.payload;
+            })
+            .addCase(googleLogin.rejected,(state,action)=>{
+                state.loading=false;
+                state.error = action.payload || 'Google login failed';
                 state.isAuthenticated=false;
                 state.user=null;
             })

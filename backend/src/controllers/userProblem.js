@@ -6,7 +6,7 @@ const createProblem = async (req,res)=>{
 
     const {title,description,difficulty,tags,
         visibleTestCases,hiddenTestCases,startCode,
-        refranceSolution, problemCreator
+        refranceSolution, driverCode, problemCreator
     } = req.body;
 
 
@@ -21,10 +21,14 @@ const createProblem = async (req,res)=>{
         // expectedOutput:
 
         const languageId = getLanguageById(language);
+        
+        // Find matching driver code for this language
+        const matchingDriver = driverCode.find(d => d.language === language);
+        const stitchedCode = matchingDriver ? `${completeCode}\n\n${matchingDriver.code}` : completeCode;
           
         // I am creating Batch submission
         const submissions = visibleTestCases.map((testcase)=>({
-            source_code:completeCode,
+            source_code: stitchedCode,
             language_id: languageId,
             stdin: testcase.input,
             expected_output: testcase.output
@@ -70,7 +74,7 @@ const createProblem = async (req,res)=>{
 const updateProblem= async (req,res) =>{
   const {title,description,difficulty,tags,
         visibleTestCases,hiddenTestCases,startCode,
-        refranceSolution, problemCreator
+        refranceSolution, driverCode, problemCreator
     } = req.body;
 
     try{
@@ -94,9 +98,13 @@ const updateProblem= async (req,res) =>{
 
         const languageId = getLanguageById(language);
           
+        // Find matching driver code for this language
+        const matchingDriver = driverCode.find(d => d.language === language);
+        const stitchedCode = matchingDriver ? `${completeCode}\n\n${matchingDriver.code}` : completeCode;
+
         // I am creating Batch submission
         const submissions = visibleTestCases.map((testcase)=>({
-            source_code:completeCode,
+            source_code: stitchedCode,
             language_id: languageId,
             stdin: testcase.input,
             expected_output: testcase.output
@@ -162,7 +170,7 @@ const getProblemById=async (req,res)=>{
      return res.status(400).send("Invalid Problem ID");
    }
 
-   const getProblem=await Problem.findById(id).select('_id title description difficulty tags visibleTestCases hiddenTestCases startCode refranceSolution');
+   const getProblem=await Problem.findById(id).select('_id title description difficulty tags visibleTestCases hiddenTestCases startCode refranceSolution driverCode');
 
    if(!getProblem){
     return res.status(400).send("Problem Not Found");
@@ -176,7 +184,7 @@ const getProblemById=async (req,res)=>{
 
 const getAllProblem=async (req,res)=>{
   try{
-    console.log("Hellow");
+ 
     
     const allProblem=await Problem.find({}).select('_id title difficulty tags createdAt');
 
@@ -209,13 +217,9 @@ const submittedProblem= async (req,res) =>{
     const problemId=req.params.pid;
     // console.log(userId,problemId);
     
-    const ans=await Submission.find({userId,problemId})
-    console.log(ans);
+    const ans=await Submission.find({userId,problemId}).sort({createdAt:-1});
     
-    if(ans.length==0){
-      res.status(201).send("Submission is not avliable")
-    }
-    res.status(200).send(ans);
+    return res.status(200).send(ans);
   }catch(err){
      res.status(500).send("Internal Server Error");
   }

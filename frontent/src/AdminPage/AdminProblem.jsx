@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosClient from "../utils/axiosClient";
+import { Link } from "react-router";
 
 const difficultyColors = {
   Easy: "bg-green-700 text-white",
@@ -63,7 +64,7 @@ const AdminProblem = () => {
         </div>
 
         {/* Problems List */}
-        <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-gray-800 rounded-xl shadow-lg overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-700 text-gray-300">
               <tr>
@@ -72,6 +73,7 @@ const AdminProblem = () => {
                 <th className="px-4 py-3">Difficulty</th>
                 <th className="px-4 py-3">Tags</th>
                 <th className="px-4 py-3">Created</th>
+                <th className="px-4 py-3 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -103,11 +105,19 @@ const AdminProblem = () => {
                     <td className="px-4 py-3">
                       {new Date(problem.createdAt).toLocaleDateString()}
                     </td>
+                    <td className="px-4 py-3 text-center">
+                      <Link
+                        to={`/admin/update/${problem._id}`}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-md transition-colors"
+                      >
+                        Update
+                      </Link>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center py-6 text-gray-400">
+                  <td colSpan="6" className="text-center py-6 text-gray-400">
                     <div className="flex mt-6 justify-center h-screen bg-[#1E2939] text-yellow-400">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
                     <span className="ml-3 text-lg">Loading Problems...</span>

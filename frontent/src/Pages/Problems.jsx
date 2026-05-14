@@ -6,6 +6,7 @@ import { Check, Circle, AlertCircle, ChevronLeft, ChevronRight } from "lucide-re
 import axiosClient from '../utils/axiosClient';
 import { NavLink, Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import Navbar from '../Components/Navbar';
 const Problems = () => {
     const [refresh, setRefresh] = useState(true);
     const [selectedTopics, setSelectedTopics] = useState(["all-tags"]);
@@ -170,35 +171,7 @@ const Problems = () => {
 
     return (
         <>
-            {/* Navbar */}
-            <nav className="flex flex-wrap items-center justify-between px-6 md:px-12 py-4 bg-[#1D232A] shadow-md">
-                {/* Logo */}
-                <div className="text-2xl font-bold">
-                    <span className="text-white">Code</span>
-                    <span className="text-orange-500">Zenith</span>
-                </div>
-
-                {/* Nav Links */}
-                <ul className="hidden md:flex space-x-8 text-gray-300 font-medium">
-                    <li><Link to="/problems" className="hover:text-orange-400" >Problems</Link></li>
-                    <li><Link to="/contests" className="hover:text-orange-400">Contests</Link></li>
-                    <li><Link to="/discuss" className="hover:text-orange-400">Discuss</Link></li>
-                    <li><Link to="/leaderboard" className="hover:text-orange-400">Leaderboard</Link></li>
-                </ul>
-
-                {/* Auth Buttons */}
-                <div className="flex space-x-3 mt-3 md:mt-0">
-                    <Link to="/login" className="text-gray-300 hover:text-orange-400">
-                        Log In
-                    </Link>
-                    <Link
-                        to="/signup"
-                        className="bg-orange-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-orange-600"
-                    >
-                        Sign Up
-                    </Link>
-                </div>
-            </nav>
+           <Navbar />
             <div className="container mx-auto p-4 px-1 md:px-12 py-4">
 
                 <div className="pl-3">
@@ -213,24 +186,24 @@ const Problems = () => {
                     {/* Problem List */}
                     <div className="flex-1 bg-gray-800 p-4 rounded-lg">
                         {/* Filter & Sort */}
-                        <div className="bg-gray-800 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="bg-gray-800 p-4 rounded-lg flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                             <span className="text-lg font-bold">
                                 Filter & Sort ({filteredProblems.length})
                             </span>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row items-center gap-3 w-full xl:w-auto">
                                 {/* 🔹 Search */}
                                 <input
                                     type="text"
                                     placeholder="Search by title..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-gray-700 p-2 rounded-lg w-full sm:w-64"
+                                    className="bg-gray-700 p-2 rounded-lg w-full lg:w-48 xl:w-64"
                                 />
 
                                 {/* 🔹 Difficulty */}
                                 <select
-                                    className="bg-gray-700 p-2 rounded-lg w-full sm:w-auto"
+                                    className="bg-gray-700 p-2 rounded-lg w-full lg:w-auto"
                                     value={selectedDifficulty}
                                     onChange={(e) => setSelectedDifficulty(e.target.value)}
                                 >
@@ -242,7 +215,7 @@ const Problems = () => {
 
                                 {/* 🔹 Status */}
                                 <select
-                                    className="bg-gray-700 p-2 rounded-lg w-full sm:w-auto"
+                                    className="bg-gray-700 p-2 rounded-lg w-full lg:w-auto"
                                     value={selectedStatus}
                                     onChange={(e) => setSelectedStatus(e.target.value)}
                                 >
@@ -252,28 +225,29 @@ const Problems = () => {
                                     <option value="">Not Started</option>
                                 </select>
 
-                                {/* 🔹 Reset */}
-                                <button
-                                    className={`${refresh === false ? "bg-[#334155]" : "bg-blue-600"} p-2 rounded-[7px] w-full sm:w-auto`}
-                                    onClick={() => {
-                                        setSearchTerm("");
-                                        setSelectedDifficulty("All");
-                                        setSelectedStatus("All");
-                                        setSelectedTopics(["all-tags"]);
-                                        setRefresh(prev => !prev);
-                                    }}
-                                >
-                                    <HiOutlineRefresh />
-                                </button>
+                                {/* 🔹 Action Group */}
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                    <button
+                                        className={`${refresh === false ? "bg-[#334155]" : "bg-blue-600"} p-2 rounded-[7px] flex items-center justify-center min-w-[40px]`}
+                                        onClick={() => {
+                                            setSearchTerm("");
+                                            setSelectedDifficulty("All");
+                                            setSelectedStatus("All");
+                                            setSelectedTopics(["all-tags"]);
+                                            setRefresh(prev => !prev);
+                                        }}
+                                    >
+                                        <HiOutlineRefresh />
+                                    </button>
 
-                                {/* Other buttons */}
-                                <div className="flex gap-2">
-                                    <button className="bg-blue-600 p-2 rounded-bl-xl rounded-l-xl">
-                                        <FaSlidersH />
-                                    </button>
-                                    <button className="bg-[#334155] p-2 rounded-br-xl rounded-e-xl">
-                                        <BiBorderAll />
-                                    </button>
+                                    <div className="flex">
+                                        <button className="bg-blue-600 p-2 rounded-l-lg border-r border-blue-700">
+                                            <FaSlidersH />
+                                        </button>
+                                        <button className="bg-[#334155] p-2 rounded-r-lg">
+                                            <BiBorderAll />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

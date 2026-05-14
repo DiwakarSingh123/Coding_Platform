@@ -36,10 +36,17 @@ const problemSchema = z.object({
             language: z.enum(['C++', 'Java', 'JavaScript']),
             completeCode: z.string().min(1, 'Complete code is required')
         })
+    ).length(3, 'All three languages required'),
+    driverCode: z.array(
+        z.object({
+            language: z.enum(['C++', 'Java', 'JavaScript']),
+            code: z.string().min(1, 'Driver code is required')
+        })
     ).length(3, 'All three languages required')
 });
 
 const CreateProblem = () => {
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const navigate = useNavigate();
@@ -64,6 +71,11 @@ const CreateProblem = () => {
                 { language: 'C++', completeCode: '' },
                 { language: 'Java', completeCode: '' },
                 { language: 'JavaScript', completeCode: '' }
+            ],
+            driverCode: [
+                { language: 'C++', code: '' },
+                { language: 'Java', code: '' },
+                { language: 'JavaScript', code: '' }
             ]
         }
     });
@@ -73,6 +85,7 @@ const CreateProblem = () => {
     const { fields: tagFields, append: appendTag, remove: removeTag } = useFieldArray({ control, name: 'tags' });
 
     const onSubmit = async (data) => {
+        setIsSubmitting(true);
         try {
             const payload = { ...data, problemCreator: user?._id };
             await axiosClient.post('/problem/create', payload);
@@ -81,6 +94,8 @@ const CreateProblem = () => {
         } catch (error) {
             console.error(error);
             alert(`Error: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -171,11 +186,21 @@ const CreateProblem = () => {
                                 <label className="label"><span className="label-text">Reference Solution</span></label>
                                 <textarea {...register(`refranceSolution.${index}.completeCode`)} className="textarea textarea-bordered w-full font-mono" rows={6} />
                             </div>
+                            <div className="form-control">
+                                <label className="label"><span className="label-text">Driver Code (Hidden Wrapper)</span></label>
+                                <textarea {...register(`driverCode.${index}.code`)} className="textarea textarea-bordered w-full font-mono" rows={6} placeholder="Hidden code to read inputs, call the user's function, and print the output." />
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <button type="submit" className="btn btn-primary w-full mt-4">Create Problem</button>
+                <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="btn btn-primary w-full mt-4 disabled:bg-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                >
+                    {isSubmitting ? 'Creating Problem...' : 'Create Problem'}
+                </button>
             </form>
         </div>
     )

@@ -6,6 +6,7 @@ import { FaJava, FaPython, FaJs } from "react-icons/fa";
 import { SiCplusplus, SiTypescript, SiGo, SiRust } from "react-icons/si";
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from "../../authSlicer";
+import Navbar from "../Components/Navbar";
 
 const Homepage = () => {
   const features = [
@@ -71,59 +72,14 @@ const Homepage = () => {
   const dispatch = useDispatch();
   const { user,isAuthenticated } = useSelector((state) => state.auth);
   const navigate=useNavigate();
-  const handleLogout = () => {
-    console.log("user handle nahi hai kya");
-    
-    dispatch(userLogout());
-    navigate('/');
-  }
+
 
   return (
     <>
+    <Navbar />
       {/* Hero section.......................... */}
       <div className="min-h-screen bg-[#0d1117] text-white">
-        {/* Navbar */}
-        <nav className="flex flex-wrap items-center justify-between px-6 md:px-12 py-4 bg-[#0d1117] shadow-md">
-          {/* Logo */}
-          <div className="text-2xl font-bold">
-            <span className="text-white">Code</span>
-            <span className="text-orange-500">Zenith</span>
-          </div>
-
-          {/* Nav Links */}
-          <ul className="hidden md:flex space-x-8 text-gray-300 font-medium">
-            <li><Link to="/problems" className="hover:text-orange-400" >Problems</Link></li>
-            <li><Link to="/contests" className="hover:text-orange-400">Contests</Link></li>
-            <li><Link to="/discuss" className="hover:text-orange-400">Discuss</Link></li>
-            <li><Link to="/leaderboard" className="hover:text-orange-400">Leaderboard</Link></li>
-          </ul>
-
-          {/* Auth Buttons */}
-          {
-            !isAuthenticated ? 
-             <div className="flex space-x-3 mt-3 md:mt-0">
-            <Link to="/login" className="text-gray-300 hover:text-orange-400">
-              Log In
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-orange-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-orange-600"
-            >
-              Sign Up
-            </Link>
-          </div>
-          :
-          
-            <button
-              onClick={()=>handleLogout()}
-              className="bg-orange-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-orange-600"
-            >
-              Logout
-            </button>
-         
-          }
-         
-        </nav>
+      
 
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center text-center py-20 md:py-32 px-6">
@@ -136,16 +92,16 @@ const Homepage = () => {
             global community of developers.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:space-x-6">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:space-x-6 w-full sm:w-auto px-4 sm:px-0">
             <Link
               to="/problems"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md font-semibold shadow-md"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-md font-semibold shadow-md text-center"
             >
               Start Solving
             </Link>
             <Link
               to="/problems"
-              className="border border-orange-500 text-orange-500 px-6 py-3 rounded-md font-semibold hover:bg-orange-500 hover:text-white transition"
+              className="border border-orange-500 text-orange-500 px-8 py-4 rounded-md font-semibold hover:bg-orange-500 hover:text-white transition text-center"
             >
               View Problems
             </Link>
@@ -263,7 +219,7 @@ const Homepage = () => {
           Join thousands of developers leveling up their skills on CodeZenith.
           Create your free account today.
         </p>
-        <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md font-semibold transition shadow-md">
+        <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-md font-semibold transition shadow-md w-full sm:w-auto max-w-xs sm:max-w-none mx-auto">
           Sign Up for Free
         </button>
       </div>
@@ -287,7 +243,7 @@ const Homepage = () => {
               <li><a href="#" className="hover:text-blue-400 transition">Home</a></li>
               <li><a href="#" className="hover:text-blue-400 transition">Problems</a></li>
               <li><a href="#" className="hover:text-blue-400 transition">Leaderboard</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition">About Us</a></li>
+              <li><Link to="/about" className="hover:text-blue-400 transition">About Us</Link></li>
             </ul>
           </div>
 

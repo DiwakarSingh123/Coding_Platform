@@ -11,9 +11,15 @@ const userSchema=new Schema({
     },
     lastName:{
         type:String,
-        minlength:3,
-        maxlength:30,
-        trim:true
+        trim:true,
+        validate: {
+            validator: function(v) {
+                // Allow empty/null (not required), but if provided must be 3-30 chars
+                if (!v) return true;
+                return v.length >= 3 && v.length <= 30;
+            },
+            message: 'Last name must be between 3 and 30 characters'
+        }
     },
     emailId:{
         type:String,

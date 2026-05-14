@@ -1,12 +1,17 @@
 const { createClient } = require('redis');
 require('dotenv').config();
 const redisClient = createClient({
-    username: 'default',
-    password: '1qP8EdOAA4dOz4WEJFnmPcJZEZddHHlZ',
+     username: 'default',
+    password: '2hODpMAPkzdtgPxOf5wpmIJJTmIOpoXs',
     socket: {
-        host: 'redis-18216.crce179.ap-south-1-1.ec2.cloud.redislabs.com',
-        port: 18216
+        host: 'redis-14553.c262.us-east-1-3.ec2.cloud.redislabs.com',
+        port: 14553
     }
 });
 
-module.exports=redisClient;
+// Handle Redis connection errors to prevent the app from crashing
+redisClient.on('error', (err) => {
+    console.error('Redis Client Error:', err.message || err);
+});
+
+module.exports = redisClient;

@@ -8,14 +8,22 @@ const DeleteProblem = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [difficulty, setDifficulty] = useState("All");
+  const [isDeleting, setIsDeleting] = useState(null); // stores the ID of the problem being deleted
 
   // delete problem
   const handleDeleteProblem = async (id) => {
     if (window.confirm("Are you sure you want to delete this problem?")) {
-      setProblems(problems.filter((p) => p._id !== id));
-      const { data } = await axiosClient.delete(`/problem/delete/${id}`)
-      console.log(data);
-
+      setIsDeleting(id);
+      try {
+        const { data } = await axiosClient.delete(`/problem/delete/${id}`);
+        console.log(data);
+        setProblems(problems.filter((p) => p._id !== id));
+      } catch (error) {
+        console.error(error);
+        alert("Error deleting problem");
+      } finally {
+        setIsDeleting(null);
+      }
     }
   };
 
@@ -68,7 +76,7 @@ const DeleteProblem = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-gray-800 rounded-lg shadow-lg overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-gray-700">
             <tr>
@@ -111,7 +119,8 @@ const DeleteProblem = () => {
                   <td className="p-3">
                     <button
                       onClick={() => handleDeleteProblem(problem._id)}
-                      className="text-red-500 hover:text-red-400 text-xl"
+                      disabled={isDeleting === problem._id}
+                      className={`text-red-500 hover:text-red-400 text-xl disabled:opacity-50 ${isDeleting === problem._id ? 'animate-pulse' : ''}`}
                     >
                       <MdOutlineDeleteForever />
                     </button>

@@ -72,7 +72,7 @@ const Dashboard = () => {
   return (
     <>
       {/* Top Header */}
-      <header className="flex justify-between items-center">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Problem Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -81,7 +81,7 @@ const Dashboard = () => {
         </div>
         <Link
           to="/admin/create"
-          className="flex items-center gap-2 p-2 rounded-md bg-blue-600 cursor-pointer"
+          className="flex items-center gap-2 p-2 rounded-md bg-blue-600 cursor-pointer w-full sm:w-auto justify-center"
         >
           <FaPlus /> Create Problem
         </Link>
