@@ -1,56 +1,58 @@
-const express=require('express');
-const app=express();
+const express = require('express');
+const app = express();
 require('dotenv').config();
-const main=require('./database');
-const authRouter=require('./routes/userAuth');
+const main = require('./database');
+const authRouter = require('./routes/userAuth');
 const cookieParser = require('cookie-parser');
-const redisClient=require('./config/redis');
-const problemRouter =require('./routes/problemCreator');
-// const problemCreator = require('./modules/problemSchema')
-const submitRouter=require('./routes/submitProblem');
-const aiRouter=require('./routes/aiChatting')
-var cors = require('cors');
+const redisClient = require('./config/redis');
+const problemRouter = require('./routes/problemCreator');
+const submitRouter = require('./routes/submitProblem');
+const aiRouter = require('./routes/aiChatting');
+const cors = require('cors');
 
-// Configure CORS to allow the live frontend URL (and sanitize trailing slashes)
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, "")) 
-  : ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ""))
+    : ["http://localhost:5173", "http://localhost:5174"];
+
+console.log("Allowed Origins:", allowedOrigins);
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true 
+    origin: function (origin, callback) {
+        // allow requests with no origin (curl, mobile, server-to-server)
+        if (!origin) return callback(null, true);
+        const clean = origin.replace(/\/$/, "");
+        if (allowedOrigins.includes(clean)) {
+            callback(null, true);
+        } else {
+            console.log("CORS Rejected:", origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
+app.use('/api', authRouter);
+app.use('/problem', problemRouter);
+app.use('/submited', submitRouter);
+app.use('/ai', aiRouter);
 
-// user Authentication code here....
-app.use('/api',authRouter);
-app.use('/problem',problemRouter);
-app.use('/submited',submitRouter);
-app.use('/ai',aiRouter);
+// Health check
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-function inilizeConnection(){
+async function inilizeConnection() {
+    try {
+        await Promise.all([main(), redisClient.connect()]);
+        console.log("Database & Redis connected");
+    } catch (err) {
+        console.error("Connection error:", err.message);
+    }
 
-    Promise.all([main(),redisClient.connect()]);
-    console.log("Database & Redis connected");
-
-    app.listen(process.env.PORT_NUMBER, ()=>{
-    console.log("Server lishening at Port "+process.env.PORT_NUMBER);
-    
-    })
+    app.listen(process.env.PORT_NUMBER || 8000, () => {
+        console.log("Server listening at Port " + (process.env.PORT_NUMBER || 8000));
+    });
 }
 
 inilizeConnection();
-// main()
-// .then(()=>{
-//     console.log("database connected");
-
-//     app.listen(process.env.PORT_NUMBER, ()=>{
-//     console.log("Server lishening at Port "+process.env.PORT_NUMBER);
-    
-//     })
-// })
-// .catch((err) => console.log(err));
-
