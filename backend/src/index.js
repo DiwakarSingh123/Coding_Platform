@@ -11,10 +11,14 @@ const submitRouter=require('./routes/submitProblem');
 const aiRouter=require('./routes/aiChatting')
 var cors = require('cors');
 
-// Learn about cors error essey solve karne key liye core use karte hai jo per mision deta hai ki ess ess port number wale url ko access dena hai
+// Configure CORS to allow the live frontend URL (and sanitize trailing slashes)
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, "")) 
+  : ["http://localhost:5173", "http://localhost:5174"];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"], // jahan se frontend run kar raha hai (Vite/React ka port)
-  credentials: true // 👈 cookies allow karna hoga
+  origin: allowedOrigins,
+  credentials: true 
 }));
 
 app.use(express.json());
