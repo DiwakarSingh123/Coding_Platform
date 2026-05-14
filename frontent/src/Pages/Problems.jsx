@@ -76,6 +76,8 @@ const Problems = () => {
                 setLoading(false);
             }
         };
+
+        fetchAllProblem();
     }, [user]);
 
     const toggleTopic = (topic) => {
